@@ -1,0 +1,35 @@
+# 🌸 Level 4: Basic SPIRE Socket Connectivity Test
+# Simple container test to verify SPIRE agent socket mounting and attestation
+
+services:
+  # SPIRE socket diagnostic container
+  caddy-spire-client-test:
+    build:
+      context: .
+      dockerfile: Dockerfile.spire-test
+    container_name: caddy-spire-client-test
+    hostname: caddy-spire-client-test
+    # Use default Docker network
+    environment:
+      - SPIRE_SOCKET_PATH=/tmp/spire-agent/public/api.sock
+    volumes:
+      # Mount the SPIRE socket directory from host
+      - /tmp/spire-agent/public:/tmp/spire-agent/public:ro
+    # Run once and exit
+    restart: "no"
+    # Override default command for interactive testing
+    # command: ["sleep", "300"]
+
+# 💖 Usage:
+# docker-compose -f docker-compose.level4.yml up --build
+#
+# This tests:
+# 1. Container can access host SPIRE socket
+# 2. SPIRE agent CLI can connect to socket
+# 3. Container workload attestation works
+# 4. X.509 SVID retrieval from containerized workload
+#
+# Expected output:
+# ✅ SPIRE socket found
+# ✅ SPIRE API fetch successful
+# ✅ SPIRE socket test completed successfully!

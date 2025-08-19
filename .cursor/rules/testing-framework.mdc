@@ -1,0 +1,78 @@
+---
+description: Multi-level testing framework structure and progression patterns
+globs: "**/test*.go,**/Makefile,tests/**"
+alwaysApply: false
+---
+# 🧪 Progressive Testing Framework
+
+## Testing Philosophy
+
+This project uses a **progressive testing approach** - start simple, build complexity:
+
+### Level 1: Mock-Based Testing 🔬
+- **Files**: [tests/level1_mock_framework_test.go](mdc:tests/level1_mock_framework_test.go), [tests/level1_mock_scenarios_test.go](mdc:tests/level1_mock_scenarios_test.go)
+- **Purpose**: Fast, isolated unit tests using mocks
+- **Dependencies**: None - runs anywhere
+- **Command**: `make test-level1`
+- **Pattern**: Use testify/mock for SPIRE client mocking
+
+### Level 2: Bare Metal Client Testing 🔗
+- **Files**: [tests/level2_client_unit_test.go](mdc:tests/level2_client_unit_test.go), [tests/integration/level2_client_comprehensive.go](mdc:tests/integration/level2_client_comprehensive.go)
+- **Purpose**: Real SPIRE agent integration
+- **Dependencies**: Local spire-agent running
+- **Command**: `make test-level2`
+- **Prerequisites**: `sudo spire-agent run -config ~/.ssh/spire-agent.conf`
+
+### Level 3: Comprehensive Caddy Integration 🌸
+- **Files**: [tests/integration/level3_caddy_comprehensive.go](mdc:tests/integration/level3_caddy_comprehensive.go)
+- **Purpose**: Full Caddy + SPIRE integration testing
+- **Dependencies**: SPIRE agent + custom Caddy build
+- **Command**: `make test-level3`
+- **Note**: "Fire and bodies" comprehensive testing
+
+### Level 4: Containerized Testing 🐳
+- **Files**: [tests/integration/level4_caddy_container_integration.go](mdc:tests/integration/level4_caddy_container_integration.go)
+- **Purpose**: Same as Level 3 but fully containerized
+- **Dependencies**: Docker + SPIRE agent
+- **Command**: `make test-level4`
+
+### Level 5: Full Orchestration 🚀
+- **Files**: [tests/integration/level5_caddy_spire_integration.go](mdc:tests/integration/level5_caddy_spire_integration.go)
+- **Purpose**: Complete SPIRE server/agent/workload orchestration
+- **Dependencies**: Docker Compose
+- **Command**: `make test-level5` (future implementation)
+
+## Diagnostic Tools
+
+Located in [tests/diagnostics/](mdc:tests/diagnostics/):
+- **spire_socket_diagnostic**: Test Unix socket connectivity
+- **spire_attestation_diagnostic**: Verify workload attestation
+- **spire_connection_simple**: Basic connection validation
+
+Run all: `make test-diagnostics`
+
+## Test File Organization
+
+```
+tests/
+├── level1_mock_*.go           # Unit tests with mocks
+├── level2_client_*.go         # Client integration tests  
+├── mocks/                     # Mock implementations
+├── integration/               # Binary test programs
+│   ├── level2_client_comprehensive.go
+│   ├── level3_caddy_comprehensive.go
+│   └── level4_caddy_container_*.go
+└── diagnostics/               # Diagnostic tools
+    ├── spire_socket_diagnostic/
+    ├── spire_attestation_diagnostic/
+    └── spire_connection_simple/
+```
+
+## Testing Best Practices
+
+1. **Always start with Level 1** - fastest feedback loop
+2. **Use `make test`** for CI-safe testing (Level 1 + 2 unit)
+3. **Build tests before running**: Each level has corresponding `build-level*` targets
+4. **Graceful degradation**: Tests should clearly indicate missing dependencies
+5. **Comprehensive coverage**: Each level builds upon the previous
+6. **Docker-first mindset**: All integration testing should work in containers

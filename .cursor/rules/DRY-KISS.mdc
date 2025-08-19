@@ -1,0 +1,14 @@
+---
+description: Enforce DRY (Don't Repeat Yourself) and KISS (Keep It Simple Silly) principles across all work.
+globs: "**/*.{ts,js,md,json}"
+alwaysApply: true
+---
+# 🚨 HARD ENFORCEMENT: DRY + KISS
+- **MANDATORY:** Before adding or modifying any code, **review the entire relevant architecture** and understand its integration into the overall system.
+- **DRY Enforcement:** Actively search for duplicate logic, patterns, or structures. Consolidate or refactor to eliminate redundancy without changing functionality.
+- **KISS Enforcement:** Favor clarity and simplicity in every design and code decision. Avoid unnecessary abstraction, complexity, or over-engineering.
+- **Architecture Alignment:** Ensure all changes fit cleanly within existing architectural patterns unless a clear, documented improvement is justified.
+- **Final Check:** Before submitting or committing, re-read your changes to confirm:
+  1. No repeated logic exists without necessity.
+  2. The solution is as simple as possible without sacrificing functionality.
+

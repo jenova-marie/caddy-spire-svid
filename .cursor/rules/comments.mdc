@@ -1,0 +1,28 @@
+---
+description: Enforce meaningful, high-level comments on all code modifications.
+globs: "**/*.{ts,js,go,py,java,rb}"
+alwaysApply: true
+---
+# 📝 ENFORCED COMMENTING STANDARD
+- **Scope:** Applies to all code modifications, whether adding, editing, or refactoring.
+- **Purpose of Comments:**
+  - Focus on explaining the **why** behind changes, not the **how** (which should be evident from well-written code).
+  - Provide high-level reasoning, design choices, and contextual information that future maintainers will need.
+  - Highlight assumptions, trade-offs, or potential future considerations.
+- **Placement & Style:**
+  - Place comments above the relevant code block or function.
+  - Use consistent comment formatting for the language in question.
+  - Avoid restating code — comments must add value beyond the literal implementation.
+- **When to Comment:**
+  - On any significant logic change.
+  - When introducing new functions, classes, or modules.
+  - When behavior changes for existing features.
+  - On complex algorithms, include the purpose, inputs, and expected outputs.
+- **Quality Control:**
+  - Comments must be clear, concise, and grammatically correct.
+  - Avoid outdated or misleading comments — always update or remove obsolete ones.
+  - Ensure comments reflect the *current* behavior and intent of the code.
+- **Final Check:** Before commit, re-read all new and modified comments to confirm they:
+  1. Provide meaningful context.
+  2. Explain *why* the change exists.
+  3. Maintain professional clarity and tone.

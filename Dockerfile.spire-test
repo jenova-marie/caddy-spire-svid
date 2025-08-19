@@ -1,0 +1,65 @@
+# 🌸 SPIRE Agent Test Container
+# Ubuntu-based container for testing SPIRE socket connectivity and attestation
+FROM ubuntu:22.04
+
+# Install dependencies
+RUN apt-get update && apt-get install -y \
+    curl \
+    wget \
+    ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
+
+# Download and install SPIRE agent CLI (detect architecture automatically)
+ARG SPIRE_VERSION=1.12.4
+RUN ARCH=$(uname -m) && \
+    if [ "$ARCH" = "x86_64" ]; then \
+        SPIRE_ARCH="linux-amd64-musl"; \
+    elif [ "$ARCH" = "aarch64" ]; then \
+        SPIRE_ARCH="linux-arm64-musl"; \
+    else \
+        echo "Unsupported architecture: $ARCH" && exit 1; \
+    fi && \
+    wget -O spire.tar.gz "https://github.com/spiffe/spire/releases/download/v${SPIRE_VERSION}/spire-${SPIRE_VERSION}-${SPIRE_ARCH}.tar.gz" \
+    && tar -xzf spire.tar.gz \
+    && cp spire-${SPIRE_VERSION}/bin/spire-agent /usr/local/bin/ \
+    && chmod +x /usr/local/bin/spire-agent \
+    && rm -rf spire*
+
+# Create test script
+RUN mkdir -p /opt/test
+COPY <<'EOF' /opt/test/spire-socket-test.sh
+#!/bin/bash
+echo "🔍 SPIRE Socket Diagnostic Test"
+echo "==============================="
+echo ""
+
+# Check if socket exists
+if [ ! -S "/tmp/spire-agent/public/api.sock" ]; then
+    echo "❌ SPIRE socket not found: /tmp/spire-agent/public/api.sock"
+    exit 1
+fi
+echo "✅ SPIRE socket found"
+
+# Check socket permissions
+echo "📋 Socket details:"
+ls -la /tmp/spire-agent/public/api.sock
+
+# Test SPIRE API connectivity
+echo ""
+echo "🔗 Testing SPIRE API connectivity..."
+if ! spire-agent api fetch x509 -socketPath /tmp/spire-agent/public/api.sock; then
+    echo "❌ SPIRE API fetch failed"
+    exit 1
+fi
+
+echo ""
+echo "✅ SPIRE socket test completed successfully!"
+EOF
+
+RUN chmod +x /opt/test/spire-socket-test.sh
+
+# Set working directory
+WORKDIR /opt/test
+
+# Default command
+CMD ["/opt/test/spire-socket-test.sh"]

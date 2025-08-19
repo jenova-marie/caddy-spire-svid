@@ -1,0 +1,24 @@
+# 🌸 Level 3 test Caddyfile for SPIRE integration
+# Uses different ports to avoid container conflicts
+
+# Primary HTTPS test site with SPIRE certificates  
+localhost:9443 {
+    tls {
+        get_certificate spire {
+            socket_path /tmp/spire-agent/public/api.sock
+            refresh_interval 30s
+        }
+    }
+    
+    respond "🌸 Level 3: SPIFFE-secured Caddy on {host}! Certificate via SPIRE ✨"
+}
+
+# HTTP test site
+localhost:9080 {
+    respond "🌸 Level 3: HTTP Caddy is working! Try HTTPS at port 9443 for SPIRE certificates ✨"
+}
+
+# Admin API  
+:2020 {
+    respond "🌸 Level 3: Caddy Admin API is working! ✨"
+}

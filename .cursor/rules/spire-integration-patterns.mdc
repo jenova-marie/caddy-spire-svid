@@ -1,0 +1,72 @@
+---
+description: SPIRE/SPIFFE integration patterns and best practices for this project
+globs: "**/*.go"
+alwaysApply: false
+---
+# 🔐 SPIRE Integration Patterns
+
+## SPIRE Client Implementation
+
+### Core Client Pattern
+The main client in [pkg/spire/client.go](mdc:pkg/spire/client.go) follows these patterns:
+
+```go
+// Always use context for cancellation
+func (c *Client) GetSVID(ctx context.Context) (*x509svid.SVID, error)
+
+// Implement proper resource cleanup
+func (c *Client) Close() error
+
+// Handle socket path configuration
+type Config struct {
+    SocketPath      string        // Default: /tmp/spire-agent/public/api.sock
+    RefreshInterval time.Duration // Default: 30s
+}
+```
+
+### Error Handling for SPIRE Operations
+
+1. **Socket Connection Errors**: Always check if SPIRE agent is running
+2. **Attestation Failures**: Log detailed error context for debugging  
+3. **SVID Retrieval**: Handle timeout and retry logic gracefully
+4. **TLS Config**: Never return nil without clear error messaging
+
+### Workload Registration Patterns
+
+For containerized workloads, use these selector patterns:
+```bash
+# Docker container selector
+-selector docker:container_name:CONTAINER_NAME
+
+# Unix UID selector  
+-selector unix:uid:0
+
+# Combined selectors for comprehensive matching
+-selector unix:uid:0 -selector unix:user:root
+```
+
+### macOS Docker Desktop Considerations
+
+Special handling required for Unix socket mounting:
+- Mount directory, not socket directly: `/path/to/spire-agent/public:/tmp/spire-agent/public`
+- Use `privileged: true` for complex socket interactions
+- Set `SPIRE_SOCKET_PATH` environment variable explicitly
+
+## Testing Patterns
+
+### Mock Testing (Level 1)
+- Use [tests/mocks/spire_mock_client.go](mdc:tests/mocks/spire_mock_client.go)
+- Test error conditions thoroughly
+- Verify proper context handling
+
+### Integration Testing (Level 2+)
+- Always check for running SPIRE agent before tests
+- Use diagnostic tools in [tests/diagnostics/](mdc:tests/diagnostics/)
+- Implement graceful degradation when SPIRE unavailable
+
+## Security Considerations
+
+1. **Trust Domain**: Always use `recoverysky.org` for this project
+2. **SVID Validation**: Verify certificates and SPIFFE IDs match expectations
+3. **Socket Permissions**: Ensure proper Unix socket access controls
+4. **Certificate Rotation**: Handle SVID refresh automatically

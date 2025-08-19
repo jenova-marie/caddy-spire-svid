@@ -1,0 +1,29 @@
+services:
+  spire-diagnostic:
+    build: .
+    container_name: spire-diagnostic
+    hostname: spire-diagnostic
+    
+    # 🚨 macOS Docker Desktop NUCLEAR OPTION: Use host networking + direct socket access
+    # This bypasses ALL Docker virtualization layers for socket access
+    network_mode: host
+    
+    # 🎯 KEY FIX: Use privileged mode to bypass macOS Docker Desktop socket limitations
+    privileged: true
+    
+    volumes:
+      # Mount the ENTIRE /tmp directory to avoid socket virtualization issues
+      - /tmp:/tmp
+      # Also mount the host spire directory as a backup
+      - /Users/jenova/spire-agent:/Users/jenova/spire-agent:ro
+    
+    # 🔒 Security context for workload attestation  
+    security_opt:
+      - no-new-privileges:true
+    
+    # Environment variables pointing to ACTUAL host socket location
+    environment:
+      - SPIRE_SOCKET_PATH=/Users/jenova/spire-agent/public/api.sock
+    
+    # Run once and exit
+    restart: "no"

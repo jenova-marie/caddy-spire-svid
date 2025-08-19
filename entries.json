@@ -1,0 +1,307 @@
+[
+  {
+    "entry_id": "8569657c-75e3-4007-affc-c51183131620",
+    "spiffe_id": "spiffe://recoverysky.org/agent-group/cmd/inanna",
+    "parent_id": "spiffe://recoverysky.org/spire/server",
+    "x509_svid_ttl": "3600",
+    "jwt_svid_ttl": "default",
+    "selectors": [
+      "aws_iid:tag:Environment:cmd",
+      "aws_iid:tag:Name:inanna-cmd"
+    ],
+    "purpose": "SPIRE agent for inanna cmd environment"
+  },
+  {
+    "entry_id": "8aad44f4-6663-465c-8015-f22b42037827",
+    "spiffe_id": "spiffe://recoverysky.org/agent-group/prod/mnemosyne",
+    "parent_id": "spiffe://recoverysky.org/spire/server",
+    "x509_svid_ttl": "3600",
+    "jwt_svid_ttl": "default",
+    "selectors": [
+      "aws_iid:tag:Environment:prod",
+      "aws_iid:tag:Name:mnemosyne"
+    ],
+    "purpose": "SPIRE agent for mnemosyne prod environment"
+  },
+  {
+    "entry_id": "9c9696a1-e23e-478f-8cb4-b4f077d27bea",
+    "spiffe_id": "spiffe://recoverysky.org/agent-group/prod/nyx",
+    "parent_id": "spiffe://recoverysky.org/spire/server",
+    "x509_svid_ttl": "3600",
+    "jwt_svid_ttl": "default",
+    "selectors": [
+      "aws_iid:tag:Environment:prod",
+      "aws_iid:tag:Name:nyx"
+    ],
+    "purpose": "SPIRE agent for nyx prod environment"
+  },
+  {
+    "entry_id": "8b51fbc5-40ed-4ab2-9c8e-20229b70ffc8",
+    "spiffe_id": "spiffe://recoverysky.org/cmd/inanna/caddy",
+    "parent_id": "spiffe://recoverysky.org/agent-group/cmd/inanna",
+    "x509_svid_ttl": "default",
+    "jwt_svid_ttl": "default",
+    "selectors": [
+      "docker:container_name:recoverysky-caddy"
+    ],
+    "dns_names": [
+      "10.10.10.11",
+      "inanna.cmd.rso",
+      "dashboard.rso",
+      "blog.rso"
+    ],
+    "purpose": "Main production Caddy server on inanna"
+  },
+  {
+    "entry_id": "b1646609-275d-468d-9cbd-9d1dd7256371",
+    "spiffe_id": "spiffe://recoverysky.org/cmd/inanna/caddy-spire-level4",
+    "parent_id": "spiffe://recoverysky.org/agent-group/cmd/inanna",
+    "x509_svid_ttl": "default",
+    "jwt_svid_ttl": "default",
+    "selectors": [
+      "docker:label:com.docker.compose.service:caddy-spire-level4"
+    ],
+    "dns_names": [
+      "10.10.10.11",
+      "inanna"
+    ],
+    "purpose": "Legacy Level 4 container test identity (to be replaced)"
+  },
+  {
+    "entry_id": "bab26f32-6756-4886-beb8-efbd74eef3dd",
+    "spiffe_id": "spiffe://recoverysky.org/cmd/inanna/ec2-user",
+    "parent_id": "spiffe://recoverysky.org/agent-group/cmd/inanna",
+    "x509_svid_ttl": "3600",
+    "jwt_svid_ttl": "default",
+    "selectors": [
+      "unix:uid:1000",
+      "unix:user:ec2-user"
+    ],
+    "dns_names": [
+      "localhost",
+      "spire-diagnostic"
+    ],
+    "purpose": "ec2-user process identity"
+  },
+  {
+    "entry_id": "ea5db60b-d2c1-48db-abf3-24b8b08c9bdc",
+    "spiffe_id": "spiffe://recoverysky.org/cmd/inanna/jenova",
+    "parent_id": "spiffe://recoverysky.org/agent-group/cmd/inanna",
+    "x509_svid_ttl": "3600",
+    "jwt_svid_ttl": "default",
+    "selectors": [
+      "unix:uid:9999",
+      "unix:user:jenova"
+    ],
+    "dns_names": [
+      "localhost",
+      "spire-diagnostic"
+    ],
+    "purpose": "jenova user process identity"
+  },
+  {
+    "entry_id": "0cc3d6a0-0e47-41dd-aded-5660339794f5",
+    "spiffe_id": "spiffe://recoverysky.org/cmd/inanna/spire-socket-test",
+    "parent_id": "spiffe://recoverysky.org/agent-group/cmd/inanna",
+    "x509_svid_ttl": "default",
+    "jwt_svid_ttl": "default",
+    "selectors": [
+      "docker:label:com.docker.compose.service:spire-socket-test"
+    ],
+    "dns_names": [
+      "10.10.10.11",
+      "inanna"
+    ],
+    "purpose": "Legacy socket test container identity (to be replaced)"
+  },
+  {
+    "entry_id": "53bcfaaa-7e53-4b96-8af9-3360fcff3ea3",
+    "spiffe_id": "spiffe://recoverysky.org/development/jenova/bad-bitch",
+    "parent_id": "spiffe://recoverysky.org/spire/server",
+    "x509_svid_ttl": "3600",
+    "jwt_svid_ttl": "default",
+    "selectors": [
+      "x509pop:subject:CN=bad-bitch"
+    ],
+    "dns_names": [
+      "localhost",
+      "jenova.dev.rso"
+    ],
+    "purpose": "Development parent identity for Jenova"
+  },
+  {
+    "entry_id": "ce7485de-8574-4ccd-9141-dba13cbcc4ee",
+    "spiffe_id": "spiffe://recoverysky.org/development/jenova/docker/caddy-spire-level5",
+    "parent_id": "spiffe://recoverysky.org/development/jenova/bad-bitch",
+    "x509_svid_ttl": "3600",
+    "jwt_svid_ttl": "default",
+    "selectors": [
+      "docker:container_name:caddy-spire-level5"
+    ],
+    "dns_names": [
+      "localhost",
+      "jenova.dev.rso"
+    ],
+    "purpose": "Development Level 5 Caddy container"
+  },
+  {
+    "entry_id": "cf2ae9d7-ed8e-4cca-aa8a-2713174eba09",
+    "spiffe_id": "spiffe://recoverysky.org/development/jenova/docker/spire-diagnostic-jenova",
+    "parent_id": "spiffe://recoverysky.org/development/jenova/bad-bitch",
+    "x509_svid_ttl": "3600",
+    "jwt_svid_ttl": "default",
+    "selectors": [
+      "unix:uid:502",
+      "unix:user:jenova"
+    ],
+    "dns_names": [
+      "localhost",
+      "spire-diagnostic"
+    ],
+    "purpose": "Development jenova user diagnostic"
+  },
+  {
+    "entry_id": "10e98f18-cb7d-4ef1-bafe-20141224bd8b",
+    "spiffe_id": "spiffe://recoverysky.org/development/jenova/docker/spire-diagnostic-root",
+    "parent_id": "spiffe://recoverysky.org/development/jenova/bad-bitch",
+    "x509_svid_ttl": "3600",
+    "jwt_svid_ttl": "default",
+    "selectors": [
+      "unix:uid:0",
+      "unix:user:root"
+    ],
+    "dns_names": [
+      "localhost",
+      "jenova.dev.rso"
+    ],
+    "purpose": "Development root user diagnostic"
+  },
+  {
+    "entry_id": "845b1029-9581-48b4-9665-93184f9d9818",
+    "spiffe_id": "spiffe://recoverysky.org/development/jenova/process/caddy-local",
+    "parent_id": "spiffe://recoverysky.org/development/jenova/bad-bitch",
+    "x509_svid_ttl": "3600",
+    "jwt_svid_ttl": "default",
+    "selectors": [
+      "unix:gid:0",
+      "unix:group:wheel",
+      "unix:uid:0",
+      "unix:user:root"
+    ],
+    "dns_names": [
+      "localhost",
+      "jenova.dev.rso"
+    ],
+    "purpose": "Development local Caddy process"
+  },
+  {
+    "entry_id": "74d74261-fb76-40ae-a395-57823517d964",
+    "spiffe_id": "spiffe://recoverysky.org/development/jenova/process/go-test",
+    "parent_id": "spiffe://recoverysky.org/development/jenova/bad-bitch",
+    "x509_svid_ttl": "3600",
+    "jwt_svid_ttl": "default",
+    "selectors": [
+      "unix:gid:20",
+      "unix:group:staff",
+      "unix:uid:502",
+      "unix:user:jenova"
+    ],
+    "purpose": "Development Go test process"
+  },
+  {
+    "entry_id": "6d5bc9b0-2869-4b7d-becc-9f946664be32",
+    "spiffe_id": "spiffe://recoverysky.org/development/jenova/process/level5-test",
+    "parent_id": "spiffe://recoverysky.org/development/jenova/bad-bitch",
+    "x509_svid_ttl": "3600",
+    "jwt_svid_ttl": "default",
+    "selectors": [
+      "unix:gid:0",
+      "unix:group:wheel",
+      "unix:uid:0",
+      "unix:user:root"
+    ],
+    "dns_names": [
+      "localhost",
+      "jenova.dev.rso"
+    ],
+    "purpose": "Development Level 5 test process"
+  },
+  {
+    "entry_id": "d254d1b5-467f-47f4-9858-8e946d17c0ec",
+    "spiffe_id": "spiffe://recoverysky.org/development/jenova/process/vscode",
+    "parent_id": "spiffe://recoverysky.org/development/jenova/bad-bitch",
+    "x509_svid_ttl": "3600",
+    "jwt_svid_ttl": "default",
+    "selectors": [
+      "unix:path:/Applications/Visual Studio Code.app/Contents/MacOS/Electron"
+    ],
+    "purpose": "Development VSCode process"
+  },
+  {
+    "entry_id": "9baa88ae-9407-4484-a8d7-7274d3e2d3d7",
+    "spiffe_id": "spiffe://recoverysky.org/prod/mnemosyne/caddy",
+    "parent_id": "spiffe://recoverysky.org/agent-group/prod/mnemosyne",
+    "x509_svid_ttl": "default",
+    "jwt_svid_ttl": "default",
+    "selectors": [
+      "docker:container_name:recoverysky-caddy"
+    ],
+    "dns_names": [
+      "10.1.1.11",
+      "mnemosyne.rso",
+      "vault.rso",
+      "neo4j.rso",
+      "mnemosyne.prod.rso",
+      "vault.prod.rso",
+      "neo4j.prod.rso"
+    ],
+    "purpose": "Production Caddy server on mnemosyne"
+  },
+  {
+    "entry_id": "cd6c7a51-ba08-4f1d-9587-dd590ffc4292",
+    "spiffe_id": "spiffe://recoverysky.org/prod/nyx/caddy",
+    "parent_id": "spiffe://recoverysky.org/agent-group/prod/nyx",
+    "x509_svid_ttl": "default",
+    "jwt_svid_ttl": "default",
+    "selectors": [
+      "docker:container_name:recoverysky-caddy"
+    ],
+    "dns_names": [
+      "10.10.10.10",
+      "vpn.rso",
+      "nyx.cmd.rso"
+    ],
+    "purpose": "Production Caddy server on nyx"
+  },
+  {
+    "entry_id": "0207bb99-3343-4034-b256-9fb9887c168b",
+    "spiffe_id": "spiffe://recoverysky.org/prod/nyx/openvpn",
+    "parent_id": "spiffe://recoverysky.org/agent-group/prod/nyx",
+    "x509_svid_ttl": "default",
+    "jwt_svid_ttl": "default",
+    "selectors": [
+      "docker:container_name:recoverysky-openvpn"
+    ],
+    "dns_names": [
+      "10.10.10.10",
+      "vpn.rso",
+      "nyx.cmd.rso"
+    ],
+    "purpose": "Production OpenVPN server on nyx"
+  },
+  {
+    "entry_id": "cb57226e-32bd-42fb-aa1a-c99816c3fc68",
+    "spiffe_id": "spiffe://recoverysky.org/cmd/inanna/caddy-spire-client-test",
+    "parent_id": "spiffe://recoverysky.org/agent-group/cmd/inanna",
+    "x509_svid_ttl": "default",
+    "jwt_svid_ttl": "default",
+    "selectors": [
+      "docker:label:com.docker.compose.service:caddy-spire-client-test"
+    ],
+    "dns_names": [
+      "10.10.10.11",
+      "inanna"
+    ],
+    "purpose": "UNIFIED container test identity for all Level 4 and 5 testing - ACTIVE"
+  }
+]

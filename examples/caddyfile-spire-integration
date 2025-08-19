@@ -1,0 +1,25 @@
+# 🌸 SPIRE Integration Caddyfile 
+# Uses real SPIRE agent for certificate management
+
+# HTTPS site with SPIRE certificates 
+# This will connect to your local SPIRE agent and request SPIFFE certificates
+localhost:8443 {
+    tls {
+        get_certificate spire {
+            socket_path /tmp/spire-agent/public/api.sock
+            refresh_interval 30s
+        }
+    }
+    
+    respond "🌸 Hello from SPIFFE-secured Caddy on {host}! Certificate via SPIRE ✨\nYour SPIFFE identity is authenticated! 💖"
+}
+
+# HTTP test site (no SPIRE needed)
+localhost:8080 {
+    respond "🌸 HTTP Caddy working! Visit https://localhost:8443 for SPIRE certificates ✨"
+}
+
+# Admin API (no SPIRE needed)
+localhost:2019 {
+    respond "🌸 Caddy Admin API working! Check /config for current config ✨"
+}

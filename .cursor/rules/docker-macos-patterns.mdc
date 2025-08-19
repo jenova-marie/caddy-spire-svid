@@ -1,0 +1,138 @@
+---
+description: Docker Desktop on macOS specific patterns and workarounds for SPIRE
+globs: "**/docker-compose*.yml,**/Dockerfile*"
+alwaysApply: false
+---
+# 🐳 Docker Desktop macOS Patterns
+
+## Unix Socket Mounting Issues
+
+Docker Desktop on macOS runs in a Linux VM, causing Unix socket mounting problems:
+
+### ❌ What Doesn't Work
+```yaml
+volumes:
+  # This fails on macOS Docker Desktop
+  - /tmp/spire-agent/public/api.sock:/tmp/spire-agent/public/api.sock
+```
+
+### ✅ Working Solutions
+
+#### Method 1: Directory Mounting
+```yaml
+volumes:
+  # Mount directory, not socket directly
+  - /Users/jenova/spire-agent/public:/tmp/spire-agent/public:ro
+environment:
+  - SPIRE_SOCKET_PATH=/tmp/spire-agent/public/api.sock
+```
+
+#### Method 2: "Nuclear Option" (Privileged)
+```yaml
+privileged: true
+volumes:
+  # Mount entire /tmp directory to avoid virtualization issues
+  - /tmp:/tmp
+  # Also mount host spire directory as backup
+  - /Users/jenova/spire-agent:/Users/jenova/spire-agent:ro
+environment:
+  # Point directly to host path
+  - SPIRE_SOCKET_PATH=/Users/jenova/spire-agent/public/api.sock
+```
+
+## SPIRE Agent Healthchecks
+
+### ❌ Generic Healthcheck (Fails)
+```yaml
+healthcheck:
+  test: ["CMD", "test", "-S", "/tmp/spire-agent/public/api.sock"]
+```
+
+### ✅ SPIRE-Specific Healthcheck
+```yaml
+healthcheck:
+  test: ["CMD", "/opt/spire/bin/spire-agent", "healthcheck", "-socketPath", "/tmp/spire-agent/public/api.sock"]
+  interval: 15s
+  timeout: 10s
+  retries: 5
+  start_period: 30s
+```
+
+## Container Orchestration Patterns
+
+### Full SPIRE Infrastructure
+Example from [docker-compose.level5-spire.yml](mdc:docker-compose.level5-spire.yml):
+
+```yaml
+services:
+  spire-server:
+    image: ghcr.io/spiffe/spire-server:1.12.4
+    depends_on: []
+    
+  spire-agent:
+    image: ghcr.io/spiffe/spire-agent:1.12.4
+    depends_on:
+      spire-server:
+        condition: service_healthy
+        
+  spire-workload-registrar:
+    depends_on:
+      spire-server:
+        condition: service_healthy
+      spire-agent:
+        condition: service_healthy
+```
+
+## Network Configuration
+
+### Host Network Mode
+For complex SPIRE setups on macOS:
+```yaml
+network_mode: "host"  # Shares host network stack
+```
+
+### Custom Networks
+```yaml
+networks:
+  spire-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
+```
+
+## Volume Management
+
+### Persistent SPIRE Data
+```yaml
+volumes:
+  spire-agent-data:
+    driver: local
+  spire-server-data:
+    driver: local
+  spire-socket:
+    driver: local
+```
+
+## Workload Registration Automation
+
+Use helper containers for workload entry creation:
+```yaml
+spire-workload-registrar:
+  image: alpine:latest
+  command: |
+    sh -c "
+      apk add --no-cache docker-cli jq &&
+      chmod +x /register-workloads.sh &&
+      /register-workloads.sh
+    "
+  restart: "no"  # Run once only
+```
+
+## Debugging Tips
+
+1. **Always use SPIRE's built-in healthcheck commands**
+2. **Mount directories, not individual sockets**
+3. **Use `privileged: true` as last resort**
+4. **Set explicit `SPIRE_SOCKET_PATH` environment variables**
+5. **Test socket connectivity with diagnostic containers first**

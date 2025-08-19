@@ -1,0 +1,192 @@
+---
+description: Go module structure and import patterns for this Caddy SPIRE project
+globs: "**/*.go,**/go.mod,**/go.sum"
+alwaysApply: false
+---
+# 🐹 Go Module Patterns
+
+## Module Structure
+
+### Root Module
+```go
+module github.com/jenova-marie/caddy-spire-client
+```
+
+### Package Organization
+```
+pkg/
+├── spire/           # Core SPIRE client implementation
+│   └── client.go    # Main client interface
+└── caddyspire/      # Caddy module integration
+    └── module.go    # Caddy certificate issuer
+```
+
+## Import Patterns
+
+### Internal Package Imports
+```go
+// Always use full module path for internal imports
+import "github.com/jenova-marie/caddy-spire-client/pkg/spire"
+import "github.com/jenova-marie/caddy-spire-client/pkg/caddyspire"
+```
+
+### External Dependencies
+```go
+// SPIFFE/SPIRE libraries
+import "github.com/spiffe/go-spiffe/v2/svid/x509svid"
+import "github.com/spiffe/go-spiffe/v2/workloadapi"
+
+// Caddy framework
+import "github.com/caddyserver/caddy/v2"
+import caddycmd "github.com/caddyserver/caddy/v2/cmd"
+
+// Testing framework
+import "github.com/stretchr/testify/assert"
+import "github.com/stretchr/testify/mock"
+
+// Logging
+import "go.uber.org/zap"
+```
+
+## Test File Organization
+
+### Test Import Pattern
+```go
+// Test files should import from the same package
+package spire_test  // External test package
+
+import (
+    "testing"
+    "github.com/jenova-marie/caddy-spire-client/pkg/spire"
+    "github.com/jenova-marie/caddy-spire-client/tests/mocks"
+)
+```
+
+### Mock Import Pattern
+```go
+// Mock files in tests/mocks/
+import "github.com/jenova-marie/caddy-spire-client/tests/mocks"
+```
+
+## Binary Command Patterns
+
+### Main Command Structure
+```go
+// cmd/caddy-spire-client/main.go
+package main
+
+import (
+    "context"
+    "flag"
+    "github.com/jenova-marie/caddy-spire-client/pkg/spire"
+)
+
+func main() {
+    // Handle flags, setup, and run
+}
+```
+
+### Caddy Integration Command
+```go
+// cmd/caddy-with-spire/main.go
+package main
+
+import (
+    caddycmd "github.com/caddyserver/caddy/v2/cmd"
+    _ "github.com/caddyserver/caddy/v2/modules/standard"
+    _ "github.com/jenova-marie/caddy-spire-client/pkg/caddyspire"
+)
+
+func main() {
+    caddycmd.Main()
+}
+```
+
+## Go Module Dependencies
+
+### Core Dependencies
+```go
+require (
+    github.com/caddyserver/caddy/v2 v2.10.0
+    github.com/spiffe/go-spiffe/v2 v2.4.0
+    github.com/stretchr/testify v1.10.0
+    go.uber.org/zap v1.27.0
+)
+```
+
+### Version Management
+- Use `go mod tidy` after adding dependencies
+- Pin to specific versions for stability
+- Update dependencies regularly with `go get -u`
+
+## Package Interface Patterns
+
+### Client Interface Design
+```go
+type SPIREClient interface {
+    GetSVID(ctx context.Context) (*x509svid.SVID, error)
+    GetTLSConfig() *tls.Config
+    Close() error
+}
+```
+
+### Configuration Patterns
+```go
+type Config struct {
+    SocketPath      string        `json:"socket_path"`
+    RefreshInterval time.Duration `json:"refresh_interval"`
+    TrustDomain     string        `json:"trust_domain"`
+}
+```
+
+## Build Tags and Conditional Compilation
+
+### Test Build Tags
+```go
+//go:build integration
+// +build integration
+
+package integration_test
+```
+
+### Platform-Specific Code
+```go
+//go:build darwin
+// +build darwin
+
+// macOS-specific socket handling
+```
+
+## Error Handling Patterns
+
+### Structured Errors
+```go
+import "fmt"
+
+type SPIREError struct {
+    Op   string
+    Err  error
+    Code int
+}
+
+func (e *SPIREError) Error() string {
+    return fmt.Sprintf("SPIRE %s: %v", e.Op, e.Err)
+}
+```
+
+### Context-Aware Errors
+```go
+if err != nil {
+    return fmt.Errorf("failed to connect to SPIRE agent at %s: %w", socketPath, err)
+}
+```
+
+## Best Practices
+
+1. **Use full module paths** for all internal imports
+2. **Pin dependency versions** in go.mod
+3. **Separate test packages** with `_test` suffix
+4. **Mock interfaces** not concrete types
+5. **Context-first APIs** for cancellation support
+6. **Structured logging** with zap or similar
+7. **Graceful error handling** with wrapped errors

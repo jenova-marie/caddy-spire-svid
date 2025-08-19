@@ -1,0 +1,138 @@
+---
+description: Makefile structure and build patterns for dual build/test system
+globs: "**/Makefile"
+alwaysApply: false
+---
+# 🔨 Makefile Build System Patterns
+
+## Dual-Purpose Design
+
+The [Makefile](mdc:Makefile) serves both **project building** and **comprehensive testing**:
+
+### Main Project Targets (Default Behavior)
+```make
+# Default target - builds main project
+make              # → Build project binaries
+make build        # → Same as above
+make install      # → Build and install to GOPATH
+```
+
+### Individual Binary Targets
+```make
+make build-caddy-spire-client  # → cmd/caddy-spire-client/main.go
+make build-caddy-with-spire    # → cmd/caddy-with-spire/main.go
+```
+
+## Testing Framework Integration
+
+### Progressive Test Execution
+```make
+make test         # → CI-safe tests (Level 1 + 2 unit)
+make test-level1  # → Mock tests (fastest)
+make test-level2  # → Client integration tests
+make test-level3  # → Caddy comprehensive tests
+make test-level4  # → Containerized tests
+make test-all     # → All levels (requires full setup)
+```
+
+### Test Binary Building
+```make
+make build-tests      # → Build all test binaries
+make build-level2     # → tests/integration/level2_client_comprehensive
+make build-level3     # → tests/integration/level3_caddy_comprehensive
+make build-level4     # → tests/integration/level4_caddy_container_*
+```
+
+### Diagnostic Tools
+```make
+make test-diagnostics    # → Run all diagnostic tools
+make build-diagnostics  # → Build diagnostic binaries
+```
+
+## Target Organization Patterns
+
+### Color-Coded Output
+```make
+CYAN = \033[36m
+GREEN = \033[32m
+YELLOW = \033[33m
+RED = \033[31m
+
+@echo "$(CYAN)🔨 Building...$(RESET)"
+@echo "$(GREEN)✅ Success!$(RESET)"
+```
+
+### Directory Structure
+```make
+BIN_DIR = bin
+TEST_DIR = tests
+
+# Auto-create directories
+@mkdir -p $(BIN_DIR)
+```
+
+### Build Dependencies
+```make
+# Tests depend on building first
+test-level2: build-level2
+test-level3: build-level3
+test-level4: build-level4
+```
+
+## Error Handling Patterns
+
+### Graceful Test Failures
+```make
+./$(BIN_DIR)/level2_comprehensive || echo "$(RED)❌ Level 2 failed - ensure SPIRE agent is running$(RESET)"
+```
+
+### Prerequisites Communication
+```make
+@echo "$(YELLOW)⚠️  Requires: Local spire-agent running$(RESET)"
+@echo "$(YELLOW)📋 Prerequisites: sudo spire-agent run -config ~/.ssh/spire-agent.conf$(RESET)"
+```
+
+## Cleanup Patterns
+
+### Docker Cleanup
+```make
+clean:
+	@docker-compose down > /dev/null 2>&1 || true
+	@docker rm spire-diagnostic > /dev/null 2>&1 || true
+```
+
+### Full Artifact Cleanup
+```make
+clean-all: clean
+	@rm -rf $(BIN_DIR)
+	@rm -f coverage.out coverage.html
+	@docker system prune -f > /dev/null 2>&1 || true
+```
+
+## Coverage and Reporting
+
+```make
+coverage:
+	go test -coverprofile=coverage.out ./$(TEST_DIR)/
+	go tool cover -html=coverage.out -o coverage.html
+	@echo "$(CYAN)🌐 Open with: open coverage.html$(RESET)"
+```
+
+## Help System Pattern
+
+Comprehensive help with color-coded sections:
+```make
+help:
+	@echo "$(MAGENTA)🌸 Project Title$(RESET)"
+	@echo "$(GREEN)🏗️ Main Targets:$(RESET)"
+	@echo "  $(YELLOW)target$(RESET)    - Description"
+```
+
+## Best Practices
+
+1. **Default to project build** - `make` should build the main project
+2. **Progressive testing** - Level 1 → 2 → 3 → 4 progression
+3. **Clear prerequisites** - Communicate external dependencies
+4. **Graceful failures** - Don't break on missing dependencies
+5. **Color coding** - Visual feedback for different operations
+6. **Comprehensive help** - Self-documenting with `make help`

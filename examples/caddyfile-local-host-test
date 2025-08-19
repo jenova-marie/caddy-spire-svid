@@ -1,0 +1,32 @@
+# 🌸 Local host test Caddyfile for SPIRE integration
+# Uses high ports to avoid sudo requirement
+
+{
+    # Disable automatic HTTPS redirects to avoid port 80 binding
+    auto_https off
+    # Use custom admin endpoint
+    admin localhost:2019
+}
+
+
+# Primary HTTPS test site with SPIRE certificates
+localhost:8443 {
+    tls {
+        get_certificate spire {
+            socket_path /tmp/spire-agent/public/api.sock
+            refresh_interval 30s
+        }
+    }
+    
+    respond "🌸 Hello from SPIFFE-secured Caddy on {host}! Certificate via SPIRE ✨"
+}
+
+# HTTP test site (no auto-redirect) - different port to avoid hostname conflict
+localhost:8080 {
+    respond "🌸 HTTP Caddy is working! Try HTTPS at port 8443 for SPIRE certificates ✨"
+}
+
+# Admin API
+localhost:2019 {
+    respond "🌸 Caddy Admin API is working! ✨"
+}

@@ -1,0 +1,12 @@
+# 🌸 HTTP-only test Caddyfile (no SPIRE dependency)
+# Test basic Caddy functionality without SPIRE
+
+# HTTP test site
+localhost:80 {
+    respond "🌸 HTTP Caddy is working! Build successful ✨"
+}
+
+# Admin API
+:2019 {
+    respond "🌸 Caddy Admin API is working! ✨"
+}

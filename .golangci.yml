@@ -1,0 +1,64 @@
+run:
+  timeout: 5m
+  go: '1.24.2'
+  modules-download-mode: mod
+
+linters-settings:
+  gocyclo:
+    min-complexity: 20  # Increased for integration tests
+  goconst:
+    min-len: 2
+    min-occurrences: 2
+  misspell:
+    locale: US
+  lll:
+    line-length: 140
+  goimports:
+    local-prefixes: github.com/jenova-marie/caddy-spire-client
+
+linters:
+  enable:
+    - errcheck
+    - gosimple
+    - govet
+    - ineffassign
+    - staticcheck
+    - typecheck
+    - unused
+    - gofmt
+    - goimports
+    - goconst
+    - gocyclo
+    - misspell
+
+issues:
+  exclude-dirs:
+    - test/integration  # Skip integration tests for complexity  
+    - orchestration     # Skip orchestration directory (separate project)
+    - dist              # Skip build artifacts
+    - bin               # Skip binaries
+  exclude-rules:
+    # Exclude some linters from running on tests files
+    - path: _test\.go
+      linters:
+        - gocyclo
+        - errcheck
+        - dupl
+        - gosec
+    # Exclude some false positives
+    - path: cmd/
+      text: "should have comment"
+    - path: examples/
+      linters:
+        - errcheck
+        - gosec
+    # Exclude integration tests from complexity checks
+    - path: test/integration/
+      linters:
+        - gocyclo
+        - errcheck
+  max-issues-per-linter: 0
+  max-same-issues: 0
+
+severity:
+  default-severity: error

@@ -1,0 +1,74 @@
+# SIMPLE SPIRE AGENT + DIAGNOSTIC TEST
+# ONLY tests containerized spire-agent + diagnostic attestation
+# NO CADDY, NO COMPLEXITY, JUST BASIC SPIRE TESTING
+
+services:      
+  # SPIRE Agent Container
+  spire-agent:
+    image: ghcr.io/spiffe/spire-agent:1.12.4
+    container_name: spire-agent
+    hostname: spire-agent
+    
+    volumes:
+      # Mount the entire agent directory for configuration and data
+      - ./agent-volume/conf/agent:/opt/spire/conf/agent
+      - spire-socket:/tmp/spire-agent
+    
+    environment:
+      - SPIRE_LOG_LEVEL=DEBUG
+    
+    networks:
+      - spire-network
+        
+    restart: unless-stopped
+    
+    command: ["spire-agent", "run", "-config", "/opt/spire/conf/agent/agent.conf"]
+    
+    healthcheck:
+      test: ["CMD", "/opt/spire/bin/spire-agent", "healthcheck", "-socketPath", "/tmp/spire-agent/public/api.sock"]
+      interval: 15s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+
+  # SPIRE Diagnostic Tool ONLY
+  spire-diagnostic:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: spire-diagnostic
+    hostname: spire-diagnostic
+    user: root:wheel
+    
+    volumes:
+      # Use the shared volume for SPIRE socket
+      - spire-socket:/tmp/spire-agent:ro
+    
+    environment:
+      - SPIRE_SOCKET_PATH=unix:///tmp/spire-agent/public/api.sock
+      # Add debug logging
+      - DEBUG=1
+    
+    networks:
+      - spire-network
+    
+    depends_on:
+      spire-agent:
+        condition: service_healthy
+    
+    # Run once and exit (don't restart on failure)
+    restart: "no"
+
+# Networks
+networks:
+  spire-network:
+    driver: bridge
+
+# Volumes  
+volumes:
+  spire-socket:
+    driver: local
+  spire-agent-data:
+    driver: local
+  spire-server-data:
+    driver: local

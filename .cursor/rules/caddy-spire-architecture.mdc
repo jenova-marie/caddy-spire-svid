@@ -1,0 +1,43 @@
+---
+description: Caddy SPIRE Client project architecture and component relationships
+globs: "**/*.go,**/*.md,**/Makefile,**/docker-compose*.yml"
+alwaysApply: false
+---
+# 🏗️ Caddy SPIRE Client Architecture Guide
+
+## Project Structure
+
+The project follows a multi-layered architecture for SPIFFE/SPIRE integration with Caddy:
+
+### Core Components
+- **[cmd/caddy-spire-client/main.go](mdc:cmd/caddy-spire-client/main.go)** - Main demonstration client binary
+- **[cmd/caddy-with-spire/main.go](mdc:cmd/caddy-with-spire/main.go)** - Custom Caddy server with SPIRE module
+- **[pkg/spire/client.go](mdc:pkg/spire/client.go)** - Core SPIRE workload API client implementation
+- **[pkg/caddyspire/module.go](mdc:pkg/caddyspire/module.go)** - Caddy certificate issuer module
+
+### Testing Framework (Progressive Levels)
+- **Level 1**: Mock-based unit tests in [tests/](mdc:tests/) - fast, no dependencies
+- **Level 2**: Bare metal client tests - requires local SPIRE agent  
+- **Level 3**: Comprehensive Caddy + SPIRE integration tests
+- **Level 4**: Containerized comprehensive testing
+- **Level 5**: Full SPIRE server/agent orchestration
+
+### Build System
+- **[Makefile](mdc:Makefile)** - Comprehensive build and test automation
+  - Main project: `make build` (default)
+  - Testing: `make test-level1` through `make test-level4`
+  - Diagnostics: `make test-diagnostics`
+
+### Docker Integration
+Multiple docker-compose configurations for different testing scenarios:
+- **[docker-compose.yml](mdc:docker-compose.yml)** - Main orchestration
+- **[docker-compose.level4.yml](mdc:docker-compose.level4.yml)** - Level 4 testing
+- **[docker-compose.level5-spire.yml](mdc:docker-compose.level5-spire.yml)** - Full SPIRE orchestration
+
+## Design Principles
+
+1. **Progressive Testing**: Start with mocks, advance to integration
+2. **Docker-First**: All testing should work in containerized environments
+3. **macOS Compatible**: Special handling for Docker Desktop Unix socket limitations
+4. **SPIFFE Standard**: Full compliance with SPIFFE/SPIRE specifications
+5. **Caddy Plugin**: Clean integration as a proper Caddy module

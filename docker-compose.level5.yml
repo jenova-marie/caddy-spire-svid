@@ -1,0 +1,50 @@
+# 🐳 Level 5: Containerized Comprehensive Caddy + SPIRE Integration
+# Tests containerized Caddy with SPIRE integration connecting to local spire-agent
+
+services:
+  # Containerized Caddy with SPIRE Module using default network
+  caddy-spire-client-test:
+    build:
+      context: .
+      dockerfile: Dockerfile.caddy
+      cache_from:
+        - caddy-spire-client:latest
+      args:
+        BUILDKIT_INLINE_CACHE: 1
+    container_name: caddy-spire-client-test
+    hostname: caddy-spire-client-test
+    # Use default Docker network and expose ports to host
+    ports:
+      - "8080:8080"    # HTTP
+      - "8443:8443"    # HTTPS with SPIRE
+      - "2019:2019"    # Admin API
+    environment:
+      - SPIRE_SOCKET_PATH=/tmp/spire-agent/public/api.sock
+      - CADDY_ADMIN=0.0.0.0:2019
+    volumes:
+      # Mount the SPIRE socket directory
+      - /tmp/spire-agent/public:/tmp/spire-agent/public:ro
+      # Use SPIRE integration Caddyfile
+      - ./examples/caddyfile-spire-integration:/etc/caddy/Caddyfile:ro
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8080 || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+
+# 💖 Usage:
+# docker-compose -f docker-compose.level5.yml up --build
+#
+# This tests:
+# 1. Container builds successfully with SPIRE module
+# 2. Container mounts local spire-agent socket
+# 3. Container gets SPIRE certificates from local agent
+# 4. Full HTTPS functionality with RecoverySky.org CA certificates
+# 5. Container workload attestation with spire-agent
+# 6. Same comprehensive testing as Level 3, but containerized
+#
+# Test with:
+# make test-level5
+# ./bin/level5_caddy_container_integration

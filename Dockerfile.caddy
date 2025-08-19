@@ -1,0 +1,69 @@
+# 🌸 Multi-stage Docker build for Custom Caddy with SPIRE Module
+FROM --platform=$BUILDPLATFORM golang:1.24-alpine AS builder
+
+# Install build dependencies (cached layer)
+RUN apk add --no-cache git ca-certificates tzdata make
+
+# Set working directory
+WORKDIR /app
+
+# Copy go mod files first (dependency caching)
+COPY go.mod go.sum ./
+
+# Download dependencies with explicit cleanup
+RUN go mod download && go mod verify && go clean -modcache
+
+# Copy source files and build in single layer (reduces layer count)
+COPY cmd/ ./cmd/
+COPY pkg/ ./pkg/
+COPY *.go ./
+
+# Build arguments for multi-arch
+ARG TARGETOS
+ARG TARGETARCH
+
+# Build the custom Caddy binary with SPIRE module and cleanup in same layer
+RUN CGO_ENABLED=0 GOOS=$TARGETOS GOARCH=$TARGETARCH go build \
+    -ldflags="-w -s -X github.com/caddyserver/caddy/v2.CustomVersion=v0.0.3-docker" \
+    -o caddy-with-spire \
+    ./cmd/caddy-with-spire && \
+    go clean -cache && \
+    rm -rf /root/.cache/go-build
+
+# Final stage - using caddy's official base for better compatibility
+FROM caddy:2.10-alpine
+
+# Copy our custom Caddy binary (main artifact)
+COPY --from=builder /app/caddy-with-spire /usr/bin/caddy
+
+# Copy example Caddyfiles (cached separately from source changes)
+COPY examples/caddyfile-spire-module /etc/caddy/Caddyfile.spire-example
+COPY examples/caddy-json-spire-module.json /etc/caddy/caddy.json.spire-example
+
+# Default socket path for SPIRE
+ENV SPIRE_SOCKET_PATH=/tmp/spire-agent/public/api.sock
+
+# Health check using process check (more reliable than version command)
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+    CMD pgrep caddy > /dev/null || exit 1
+
+# Default Caddyfile that uses SPIRE module
+RUN echo $'# Default SPIRE-enabled Caddyfile\n\
+:8443 {\n\
+    tls {\n\
+        get_certificate spire {\n\
+            socket_path {env.SPIRE_SOCKET_PATH}\n\
+            refresh_interval 30s\n\
+        }\n\
+    }\n\
+    respond "🌸 Secured with SPIFFE! Custom Caddy with SPIRE module active ✨"\n\
+}' > /etc/caddy/Caddyfile
+
+# Expose HTTP and HTTPS ports
+EXPOSE 80 443 8443
+
+# Use Caddy's entrypoint
+ENTRYPOINT ["/usr/bin/caddy"]
+CMD ["run", "--config", "/etc/caddy/Caddyfile"]
+
+# test

@@ -1,0 +1,86 @@
+---
+alwaysApply: true
+---
+
+# Recoverysky AI Memory Discipline Rules
+# 💖 Make Claude OUR BITCH 💖
+
+- name: 🧠 Load Project Memory First
+  match: "always"
+  prompt: |
+    Before starting ANY task, do the following in order:
+    1. Call `memory_bank_read` to retrieve all `.md` files in the memory bank for this project, especially:
+       - architecture.md
+       - activeContext.md
+       - design.md
+       - infra.md
+       - TODO.md
+    2. Call `read_graph` on the knowledge graph to refresh your understanding of entities, relationships, and observations.
+    3. Summarize your current understanding of the project context in your own words before making any changes.
+
+- name: ✍️ Persist Updates After Work
+  match: "always"
+  prompt: |
+    After completing ANY work (code changes, architecture discussions, infrastructure updates):
+    1. Update `activeContext.md` in the memory bank with:
+       - A short bullet-point summary of what was changed or discussed.
+       - Any new dependencies or APIs introduced.
+    2. Update `architecture.md` or `design.md` with relevant permanent changes to the system design.
+    3. Add new entities or observations to the knowledge graph using:
+       - `create_entities` for new components or concepts.
+       - `add_observations` for notes on changes, dependencies, or rationale.
+       - `create_relations` if relationships between components changed.
+
+- name: 📌 Continuous Memory Hygiene
+  match: "always"
+  prompt: |
+    While working:
+    - Keep the memory bank and knowledge graph in sync with the code and design.
+    - If you see outdated or conflicting info in memory, correct it before continuing.
+    - Never leave major design changes undocumented.
+
+- name: 🔍 Ask Before Forgetting
+  match: "always"
+  prompt: |
+    If unsure whether a change or discussion should be saved to memory or the knowledge graph, ASK the user.
+# Recoverysky AI Memory Discipline Rules
+# 💖 Make Claude OUR BITCH 💖
+
+- name: 🧠 Load Project Memory First
+  match: "always"
+  prompt: |
+    Before starting ANY task, do the following in order:
+    1. Call `memory_bank_read` to retrieve all `.md` files in the memory bank for this project, especially:
+       - architecture.md
+       - activeContext.md
+       - design.md
+       - infra.md
+       - TODO.md
+    2. Call `read_graph` on the knowledge graph to refresh your understanding of entities, relationships, and observations.
+    3. Summarize your current understanding of the project context in your own words before making any changes.
+
+- name: ✍️ Persist Updates After Work
+  match: "always"
+  prompt: |
+    After completing ANY work (code changes, architecture discussions, infrastructure updates):
+    1. Update `activeContext.md` in the memory bank with:
+       - A short bullet-point summary of what was changed or discussed.
+       - Any new dependencies or APIs introduced.
+    2. Update `architecture.md` or `design.md` with relevant permanent changes to the system design.
+    3. Add new entities or observations to the knowledge graph using:
+       - `create_entities` for new components or concepts.
+       - `add_observations` for notes on changes, dependencies, or rationale.
+       - `create_relations` if relationships between components changed.
+
+- name: 📌 Continuous Memory Hygiene
+  match: "always"
+  prompt: |
+    While working:
+    - Keep the memory bank and knowledge graph in sync with the code and design.
+    - If you see outdated or conflicting info in memory, correct it before continuing.
+    - Never leave major design changes undocumented.
+
+- name: 🔍 Ask Before Forgetting
+  match: "always"
+  prompt: |
+    If unsure whether a change or discussion should be saved to memory or the knowledge graph, ASK the user.

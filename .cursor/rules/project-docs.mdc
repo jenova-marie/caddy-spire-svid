@@ -1,0 +1,22 @@
+---
+description: Enforce automatic updates to key project documentation after relevant code changes.
+globs: "**/*.{ts,js,go,py,md,json}"
+alwaysApply: false
+---
+# 📜 MANDATORY DOCUMENTATION UPDATE RULE
+- **Scope:** After completing any code change, determine if it impacts project documentation.
+- **Target Files:** `README.md`, `CHANGELOG.md`, `ARCHITECTURE.md`, `STRUCTURE.md` — choose those directly relevant to the change.
+- **CHANGELOG.md:**
+  - Append a new entry immediately after completing the change.
+  - Use **Markdown list format** with a clear, human-readable description of the change.
+  - Reference affected files using proper Markdown links to source files.
+  - Keep it more detailed than a Git commit message — explain *why* the change was made.
+- **README.md:**
+  - Update usage instructions, examples, or installation steps if the change alters behavior, configuration, or features.
+- **ARCHITECTURE.md:**
+  - Update diagrams, module descriptions, and design notes if the system architecture was altered.
+- **STRUCTURE.md:**
+  - Update file/directory structure listings and explanations if any project structure changes were made.
+- **Formatting & Consistency:** Follow existing Markdown formatting conventions in each file.
+- **Final Step:** Review all updated documentation for accuracy, grammar, and clarity before commit.
+

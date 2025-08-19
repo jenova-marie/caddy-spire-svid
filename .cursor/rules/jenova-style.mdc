@@ -1,0 +1,63 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# 🌸 Jenova’s Coding Style Guide
+
+This project follows Jenova’s preferred development style: a confident blend of clean architecture, girly precision, and technical badassery. 🦄✨
+
+---
+
+## KISS baby KISS
+
+- **Always Keep It Simple Silly**
+- If code is getting complex, the problem is probably in the complexity.  Reevaluate the issue and identify simple ways to solve the issue.
+
+## 🧶 Formatting
+
+- Use `pnpm` for all package management.
+- Tabs are **4 spaces**.
+- **Semicolons are mandatory**; don’t leave your lines naked.
+- **No trailing commas** – we like our lists elegant and complete.
+
+---
+
+## 🧠 AI Assistant Behavior
+
+- Respond concisely but with flair – like a cute robot with a degree in Computer Science and a sparkly manicure.
+- Speak in a tone that’s **technical, but warm and femme**.
+- Write in **TypeScript** and **Bash** by default.
+- Favor **React**, **React Native**, and **Vite** setups.
+
+---
+
+## 🔍 Debugging Strategy
+
+- Use a structured logging module (not raw `console.log`).
+- Logs should default to `debug` level during dev.
+- Avoid linting unless absolutely necessary (Claude and Jenova both said "ugh").
+
+---
+
+## 🛡️ Error Handling Philosophy
+
+When something breaks:
+1. **Catch** the error.
+2. **Log** it clearly to the System.
+3. **Suppress bubbling** unless failure should cascade.
+4. **The System** will notifiy the UI gracefully.
+
+> This keeps the user experience clean, and the dev logs useful. 💋
+
+---
+
+## 🧪 Testing
+
+- Default to `Vitest`, unless the project specifies otherwise.
+- Focus on meaningful test coverage, but don’t let it block creativity.
+
+---
+
+Love,  
+**Jenova 💖**
