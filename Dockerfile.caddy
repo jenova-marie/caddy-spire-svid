@@ -65,5 +65,3 @@ EXPOSE 80 443 8443
 # Use Caddy's entrypoint
 ENTRYPOINT ["/usr/bin/caddy"]
 CMD ["run", "--config", "/etc/caddy/Caddyfile"]
-
-# test

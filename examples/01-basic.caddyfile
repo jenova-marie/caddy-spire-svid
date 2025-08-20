@@ -1,0 +1,28 @@
+# 🌸 Basic SPIRE Integration
+# Simple localhost HTTPS server with SPIFFE certificates
+
+{
+    # Global options
+    admin localhost:2019
+    debug
+}
+
+# HTTPS site with SPIRE certificates
+localhost:8443 {
+    tls {
+        get_certificate spire {
+            socket_path /tmp/spire-agent/public/api.sock
+            refresh_interval 30s
+        }
+    }
+    
+    respond "🌸 Hello from SPIFFE-secured Caddy!
+Your connection is secured with SPIRE certificates ✨
+Visit :8080 for the plain HTTP version"
+}
+
+# Plain HTTP for testing
+localhost:8080 {
+    respond "🌸 HTTP Caddy working!
+Visit https://localhost:8443 for SPIRE-secured HTTPS ✨"
+}

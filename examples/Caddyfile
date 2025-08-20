@@ -1,0 +1,27 @@
+# 🌸 Docker Container Caddyfile
+# Basic configuration for container deployment with SPIRE
+
+{
+    admin localhost:2019
+    debug
+}
+
+# Health check endpoint (no SPIRE needed)
+:80 {
+    respond /health "OK" 200
+    respond "🌸 Caddy HTTP working! Visit :8443 for SPIRE-secured HTTPS ✨"
+}
+
+# SPIRE-secured HTTPS
+:8443 {
+    tls {
+        get_certificate spire {
+            socket_path /tmp/spire-agent/public/api.sock
+            refresh_interval 30s
+        }
+    }
+    
+    respond "🌸 Hello from SPIFFE-secured Caddy in Docker!
+Container: {system.hostname}
+Your connection is secured with SPIRE certificates ✨"
+}

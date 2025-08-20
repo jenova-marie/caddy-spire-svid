@@ -1,0 +1,154 @@
+{
+  "_comment": "🌸 SPIRE Features Showcase - JSON Configuration",
+  "_description": "Demonstrates all SPIRE module features and capabilities",
+  
+  "admin": {
+    "listen": "localhost:2019"
+  },
+  
+  "logging": {
+    "logs": {
+      "default": {
+        "writer": {
+          "output": "file",
+          "filename": "/var/log/caddy/access.log"
+        },
+        "encoder": {
+          "format": "json"
+        }
+      }
+    }
+  },
+  
+  "apps": {
+    "http": {
+      "servers": {
+        "spire_showcase": {
+          "listen": [":443", ":8443"],
+          "routes": [
+            {
+              "match": [{"host": ["features.example.com"]}],
+              "handle": [
+                {
+                  "handler": "static_response",
+                  "status_code": 200,
+                  "headers": {
+                    "Content-Type": ["application/json"]
+                  },
+                  "body": "{\n  \"message\": \"🌸 SPIRE Features Demo\",\n  \"spiffe_enabled\": true,\n  \"certificate_source\": \"SPIRE Agent\",\n  \"auto_refresh\": true\n}"
+                }
+              ]
+            },
+            {
+              "match": [{"host": ["percentage-refresh.example.com"]}],
+              "handle": [
+                {
+                  "handler": "static_response",
+                  "status_code": 200,
+                  "body": "🌸 This site uses percentage-based certificate refresh (65% of lifetime)"
+                }
+              ]
+            },
+            {
+              "match": [{"host": ["interval-refresh.example.com"]}],
+              "handle": [
+                {
+                  "handler": "static_response",
+                  "status_code": 200,
+                  "body": "🌸 This site uses interval-based certificate refresh (30s)"
+                }
+              ]
+            },
+            {
+              "match": [{"host": ["custom-socket.example.com"]}],
+              "handle": [
+                {
+                  "handler": "static_response",
+                  "status_code": 200,
+                  "body": "🌸 This site uses a custom SPIRE socket path"
+                }
+              ]
+            },
+            {
+              "match": [{"host": ["timeout-demo.example.com"]}],
+              "handle": [
+                {
+                  "handler": "static_response",
+                  "status_code": 200,
+                  "body": "🌸 This site has custom timeout settings for SPIRE operations"
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    
+    "tls": {
+      "automation": {
+        "policies": [
+          {
+            "_comment": "Default SPIRE policy with percentage-based refresh",
+            "subjects": ["features.example.com"],
+            "issuers": [
+              {
+                "module": "spire",
+                "socket_path": "/tmp/spire-agent/public/api.sock",
+                "refresh_at_percent": 65,
+                "refresh_timeout": "10s"
+              }
+            ]
+          },
+          {
+            "_comment": "Percentage-based refresh showcase",
+            "subjects": ["percentage-refresh.example.com"],
+            "issuers": [
+              {
+                "module": "spire",
+                "socket_path": "/tmp/spire-agent/public/api.sock",
+                "refresh_at_percent": 75,
+                "refresh_timeout": "15s"
+              }
+            ]
+          },
+          {
+            "_comment": "Interval-based refresh showcase",
+            "subjects": ["interval-refresh.example.com"],
+            "issuers": [
+              {
+                "module": "spire",
+                "socket_path": "/tmp/spire-agent/public/api.sock",
+                "refresh_interval": "30s",
+                "refresh_timeout": "10s"
+              }
+            ]
+          },
+          {
+            "_comment": "Custom socket path showcase",
+            "subjects": ["custom-socket.example.com"],
+            "issuers": [
+              {
+                "module": "spire",
+                "socket_path": "/var/run/spire/custom/api.sock",
+                "refresh_interval": "45s",
+                "refresh_timeout": "20s"
+              }
+            ]
+          },
+          {
+            "_comment": "Custom timeout showcase",
+            "subjects": ["timeout-demo.example.com"],
+            "issuers": [
+              {
+                "module": "spire",
+                "socket_path": "/tmp/spire-agent/public/api.sock",
+                "refresh_interval": "60s",
+                "refresh_timeout": "30s"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  }
+}

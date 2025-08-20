@@ -1,0 +1,77 @@
+# 🌸 Medium SPIRE Configuration
+# Multiple sites with different SPIRE settings and real-world scenarios
+
+{
+    # Global options
+    admin localhost:2019
+    debug
+    
+    # Default SPIRE socket for all sites
+    default_sni example.com
+}
+
+# Main application server
+app.example.com {
+    tls {
+        issuer spire {
+            socket_path /tmp/spire-agent/public/api.sock
+            refresh_interval 30s
+        }
+    }
+    
+    # Reverse proxy to backend
+    reverse_proxy localhost:3000 {
+        header_up Host {upstream_hostport}
+        header_up X-Real-IP {remote_host}
+        header_up X-Forwarded-For {remote_host}
+        header_up X-Forwarded-Proto {scheme}
+    }
+    
+    # Security headers
+    header {
+        Strict-Transport-Security "max-age=31536000; includeSubDomains"
+        X-Content-Type-Options "nosniff"
+        X-Frame-Options "DENY"
+        X-XSS-Protection "1; mode=block"
+    }
+}
+
+# API server with faster refresh
+api.example.com {
+    tls {
+        issuer spire {
+            socket_path /tmp/spire-agent/public/api.sock
+            refresh_interval 15s  # Faster refresh for critical API
+        }
+    }
+    
+    # API endpoint
+    reverse_proxy /api/* localhost:8080
+    
+    # Health check endpoint (no auth required)
+    respond /health "OK" 200
+    
+    # Default response
+    respond "🌸 API Server - Use /api/* endpoints"
+}
+
+# File server for static content
+static.example.com {
+    tls {
+        issuer spire {
+            socket_path /tmp/spire-agent/public/api.sock
+            refresh_interval 60s  # Slower refresh for static content
+        }
+    }
+    
+    # Serve static files
+    file_server {
+        root /var/www/static
+        browse
+    }
+    
+    # Cache headers for static content
+    header /assets/* {
+        Cache-Control "public, max-age=31536000"
+    }
+}
