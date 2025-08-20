@@ -106,7 +106,7 @@ jobs:
       run: go vet ./...
 
   docker-build:
-    name: 🐳 arm64 Docker Build Test
+    name: 🐳 Docker Build Test
     runs-on: ubuntu-latest
     needs: [test, build]
 
