@@ -10,7 +10,7 @@ alwaysApply: false
 The project follows a multi-layered architecture for SPIFFE/SPIRE integration with Caddy:
 
 ### Core Components
-- **[cmd/caddy-spire-client/main.go](mdc:cmd/caddy-spire-client/main.go)** - Main demonstration client binary
+- **[cmd/caddy-spire-svid/main.go](mdc:cmd/caddy-spire-svid/main.go)** - Main demonstration client binary
 - **[cmd/caddy-with-spire/main.go](mdc:cmd/caddy-with-spire/main.go)** - Custom Caddy server with SPIRE module
 - **[pkg/spire/client.go](mdc:pkg/spire/client.go)** - Core SPIRE workload API client implementation
 - **[pkg/caddyspire/module.go](mdc:pkg/caddyspire/module.go)** - Caddy certificate issuer module

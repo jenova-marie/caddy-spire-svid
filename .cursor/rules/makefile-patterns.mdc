@@ -19,7 +19,7 @@ make install      # → Build and install to GOPATH
 
 ### Individual Binary Targets
 ```make
-make build-caddy-spire-client  # → cmd/caddy-spire-client/main.go
+make build-caddy-spire-svid  # → cmd/caddy-spire-svid/main.go
 make build-caddy-with-spire    # → cmd/caddy-with-spire/main.go
 ```
 

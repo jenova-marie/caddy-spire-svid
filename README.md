@@ -1,12 +1,12 @@
 # 🌸 Caddy SPIRE Client
 
-[![CI Pipeline](https://github.com/jenova-marie/caddy-spire-client/actions/workflows/ci.yml/badge.svg)](https://github.com/jenova-marie/caddy-spire-client/actions/workflows/ci.yml)
-[![Release Workflow](https://github.com/jenova-marie/caddy-spire-client/actions/workflows/release.yml/badge.svg)](https://github.com/jenova-marie/caddy-spire-client/actions/workflows/release.yml)
-[![Release](https://img.shields.io/github/v/release/jenova-marie/caddy-spire-client?sort=semver)](https://github.com/jenova-marie/caddy-spire-client/releases/latest)
-[![Go Report Card](https://goreportcard.com/badge/github.com/jenova-marie/caddy-spire-client)](https://goreportcard.com/report/github.com/jenova-marie/caddy-spire-client)
-[![codecov](https://codecov.io/gh/jenova-marie/caddy-spire-client/branch/main/graph/badge.svg)](https://codecov.io/gh/jenova-marie/caddy-spire-client)
-[![Go Reference](https://pkg.go.dev/badge/github.com/jenova-marie/caddy-spire-client.svg)](https://pkg.go.dev/github.com/jenova-marie/caddy-spire-client)
-[![Container](https://img.shields.io/badge/ghcr.io-caddy--spire--client-blue?logo=github)](https://github.com/jenova-marie/caddy-spire-client/pkgs/container/caddy-spire-client)
+[![CI Pipeline](https://github.com/jenova-marie/caddy-spire-svid/actions/workflows/ci.yml/badge.svg)](https://github.com/jenova-marie/caddy-spire-svid/actions/workflows/ci.yml)
+[![Release Workflow](https://github.com/jenova-marie/caddy-spire-svid/actions/workflows/release.yml/badge.svg)](https://github.com/jenova-marie/caddy-spire-svid/actions/workflows/release.yml)
+[![Release](https://img.shields.io/github/v/release/jenova-marie/caddy-spire-svid?sort=semver)](https://github.com/jenova-marie/caddy-spire-svid/releases/latest)
+[![Go Report Card](https://goreportcard.com/badge/github.com/jenova-marie/caddy-spire-svid)](https://goreportcard.com/report/github.com/jenova-marie/caddy-spire-svid)
+[![codecov](https://codecov.io/gh/jenova-marie/caddy-spire-svid/branch/main/graph/badge.svg)](https://codecov.io/gh/jenova-marie/caddy-spire-svid)
+[![Go Reference](https://pkg.go.dev/badge/github.com/jenova-marie/caddy-spire-svid.svg)](https://pkg.go.dev/github.com/jenova-marie/caddy-spire-svid)
+[![Container](https://img.shields.io/badge/ghcr.io-caddy--spire--client-blue?logo=github)](https://github.com/jenova-marie/caddy-spire-svid/pkgs/container/caddy-spire-svid)
 [![License: MIT](https://img.shields.io/badge/License-MIT-pink.svg)](https://opensource.org/licenses/MIT)
 
 
@@ -45,21 +45,21 @@ Download the latest release for your platform:
 
 ```bash
 # Linux (amd64)
-curl -L https://github.com/jenova-marie/caddy-spire-client/releases/latest/download/caddy-spire-client-linux-amd64.tar.gz | tar xz
+curl -L https://github.com/jenova-marie/caddy-spire-svid/releases/latest/download/caddy-spire-svid-linux-amd64.tar.gz | tar xz
 
 # macOS (arm64)
-curl -L https://github.com/jenova-marie/caddy-spire-client/releases/latest/download/caddy-spire-client-darwin-arm64.tar.gz | tar xz
+curl -L https://github.com/jenova-marie/caddy-spire-svid/releases/latest/download/caddy-spire-svid-darwin-arm64.tar.gz | tar xz
 
 # Install globally
-sudo mv caddy-spire-client /usr/local/bin/
+sudo mv caddy-spire-svid /usr/local/bin/
 ```
 
 ### From Source
 
 ```bash
 # Clone the repository
-git clone https://github.com/jenova-marie/caddy-spire-client.git
-cd caddy-spire-client
+git clone https://github.com/jenova-marie/caddy-spire-svid.git
+cd caddy-spire-svid
 
 # Build and install
 make install
@@ -73,22 +73,22 @@ make build
 #### CLI Tool
 ```bash
 # Pull from GitHub Container Registry
-docker pull ghcr.io/jenova-marie/caddy-spire-client:latest
+docker pull ghcr.io/jenova-marie/caddy-spire-svid:latest
 
 # Run the container
 docker run --rm -v /tmp/spire-agent/public:/tmp/spire-agent/public \
-  ghcr.io/jenova-marie/caddy-spire-client:latest
+  ghcr.io/jenova-marie/caddy-spire-svid:latest
 ```
 
 #### Custom Caddy with SPIRE Module
 ```bash
 # Pull the custom Caddy image
-docker pull ghcr.io/jenova-marie/caddy-spire-client-caddy:latest
+docker pull ghcr.io/jenova-marie/caddy-spire-svid-caddy:latest
 
 # Run custom Caddy
 docker run --rm -p 80:80 -p 443:443 -p 8443:8443 \
   -v /tmp/spire-agent/public:/tmp/spire-agent/public \
-  ghcr.io/jenova-marie/caddy-spire-client-caddy:latest
+  ghcr.io/jenova-marie/caddy-spire-svid-caddy:latest
 
 # Or build locally and use Docker Compose
 make docker-build-caddy
@@ -98,7 +98,7 @@ docker-compose -f docker-compose.caddy.yml up --build
 ### Go Module
 
 ```bash
-go get github.com/jenova-marie/caddy-spire-client
+go get github.com/jenova-marie/caddy-spire-svid
 ```
 
 ## 🚀 Quick Start
@@ -107,16 +107,16 @@ go get github.com/jenova-marie/caddy-spire-client
 
 ```bash
 # Start with default settings
-caddy-spire-client
+caddy-spire-svid
 
 # Custom socket path and refresh interval
-caddy-spire-client -socket /custom/path/api.sock -refresh 1m
+caddy-spire-svid -socket /custom/path/api.sock -refresh 1m
 
 # Show help
-caddy-spire-client -help
+caddy-spire-svid -help
 
 # Show version
-caddy-spire-client -version
+caddy-spire-svid -version
 ```
 
 ### Programmatic Usage
@@ -128,7 +128,7 @@ import (
     "log"
     "time"
     
-    "github.com/jenova-marie/caddy-spire-client/pkg/spire"
+    "github.com/jenova-marie/caddy-spire-svid/pkg/spire"
 )
 
 func main() {
@@ -210,7 +210,7 @@ example.com {
 
 ### 🎯 **Method 2: External Certificate Provider**
 
-**Description**: Run `caddy-spire-client` as a separate service that provides certificates to Caddy via shared storage or API.
+**Description**: Run `caddy-spire-svid` as a separate service that provides certificates to Caddy via shared storage or API.
 
 **✅ Pros:**
 - **Standard Caddy**: Uses unmodified Caddy binary
@@ -292,7 +292,7 @@ package main
 
 import (
     "net/http"
-    "github.com/jenova-marie/caddy-spire-client/pkg/spire"
+    "github.com/jenova-marie/caddy-spire-svid/pkg/spire"
 )
 
 func main() {

@@ -9,7 +9,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/jenova-marie/caddy-spire-client/test/mocks"
+	"github.com/jenova-marie/caddy-spire-svid/test/mocks"
 )
 
 // TestMockClientScenarios runs table-driven tests for MockClient behavior

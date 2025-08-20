@@ -48,12 +48,12 @@ make release
 ls -la dist/archives/
 
 # Expected files:
-# - caddy-spire-client-linux-amd64.tar.gz
-# - caddy-spire-client-linux-arm64.tar.gz
-# - caddy-spire-client-darwin-amd64.tar.gz
-# - caddy-spire-client-darwin-arm64.tar.gz
-# - caddy-spire-client-windows-amd64.zip
-# - caddy-spire-client-windows-arm64.zip
+# - caddy-spire-svid-linux-amd64.tar.gz
+# - caddy-spire-svid-linux-arm64.tar.gz
+# - caddy-spire-svid-darwin-amd64.tar.gz
+# - caddy-spire-svid-darwin-arm64.tar.gz
+# - caddy-spire-svid-windows-amd64.zip
+# - caddy-spire-svid-windows-arm64.zip
 ```
 
 ### 4. Docker Image Release
@@ -87,11 +87,11 @@ make docker-build
 
 ```bash
 # Check that images were pushed successfully
-docker buildx imagetools inspect ghcr.io/jenova-marie/caddy-spire-client-caddy:latest
-docker buildx imagetools inspect ghcr.io/jenova-marie/caddy-spire-client-caddy:v1.0.4
+docker buildx imagetools inspect ghcr.io/jenova-marie/caddy-spire-svid-caddy:latest
+docker buildx imagetools inspect ghcr.io/jenova-marie/caddy-spire-svid-caddy:v1.0.4
 
 # Test pulling images
-docker pull ghcr.io/jenova-marie/caddy-spire-client-caddy:latest
+docker pull ghcr.io/jenova-marie/caddy-spire-svid-caddy:latest
 ```
 
 ### 5. Create GitHub Release
@@ -133,28 +133,28 @@ Download the appropriate binary for your platform:
 
 **Linux AMD64:**
 ```bash
-curl -L https://github.com/jenova-marie/caddy-spire-client/releases/download/v1.0.4/caddy-spire-client-linux-amd64.tar.gz | tar xz
-sudo mv caddy-spire-client /usr/local/bin/
+curl -L https://github.com/jenova-marie/caddy-spire-svid/releases/download/v1.0.4/caddy-spire-svid-linux-amd64.tar.gz | tar xz
+sudo mv caddy-spire-svid /usr/local/bin/
 ```
 
 **Linux ARM64:**
 ```bash
-curl -L https://github.com/jenova-marie/caddy-spire-client/releases/download/v1.0.4/caddy-spire-client-linux-arm64.tar.gz | tar xz
-sudo mv caddy-spire-client /usr/local/bin/
+curl -L https://github.com/jenova-marie/caddy-spire-svid/releases/download/v1.0.4/caddy-spire-svid-linux-arm64.tar.gz | tar xz
+sudo mv caddy-spire-svid /usr/local/bin/
 ```
 
 #### Docker Image
 ```bash
 # Pull the Caddy + SPIRE image
-docker pull ghcr.io/jenova-marie/caddy-spire-client-caddy:v1.0.4
+docker pull ghcr.io/jenova-marie/caddy-spire-svid-caddy:v1.0.4
 
 # Or use latest
-docker pull ghcr.io/jenova-marie/caddy-spire-client-caddy:latest
+docker pull ghcr.io/jenova-marie/caddy-spire-svid-caddy:latest
 ```
 
 ### 🔧 Usage
 ```bash
-caddy-spire-client -help
+caddy-spire-svid -help
 ```
 
 💖 Made with love by Jenova
@@ -225,21 +225,21 @@ docker logout ghcr.io
 make docker-login
 
 # Verify access
-docker buildx imagetools inspect ghcr.io/jenova-marie/caddy-spire-client-caddy:latest
+docker buildx imagetools inspect ghcr.io/jenova-marie/caddy-spire-svid-caddy:latest
 ```
 
 ## 📊 Post-Release Verification
 
 ```bash
 # Test binary download and execution
-curl -L https://github.com/jenova-marie/caddy-spire-client/releases/download/v1.0.X/caddy-spire-client-linux-amd64.tar.gz | tar xz
-./caddy-spire-client -version
+curl -L https://github.com/jenova-marie/caddy-spire-svid/releases/download/v1.0.X/caddy-spire-svid-linux-amd64.tar.gz | tar xz
+./caddy-spire-svid -version
 
 # Test Docker image
-docker run --rm ghcr.io/jenova-marie/caddy-spire-client-caddy:v1.0.X version
+docker run --rm ghcr.io/jenova-marie/caddy-spire-svid-caddy:v1.0.X version
 
 # Verify multi-arch support
-docker buildx imagetools inspect ghcr.io/jenova-marie/caddy-spire-client-caddy:v1.0.X
+docker buildx imagetools inspect ghcr.io/jenova-marie/caddy-spire-svid-caddy:v1.0.X
 ```
 
 ## 🌸 Release Notes

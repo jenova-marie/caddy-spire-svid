@@ -15,7 +15,7 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/jenova-marie/caddy-spire-client/pkg/spire"
+	"github.com/jenova-marie/caddy-spire-svid/pkg/spire"
 )
 
 const (
@@ -313,5 +313,5 @@ func printHelp() {
 	fmt.Printf("  SIGHUP  - Refresh certificates immediately\n")
 	fmt.Printf("  SIGTERM - Graceful shutdown\n")
 	fmt.Printf("  SIGINT  - Graceful shutdown\n\n")
-	fmt.Printf("For more information: https://github.com/jenova-marie/caddy-spire-client\n")
+	fmt.Printf("For more information: https://github.com/jenova-marie/caddy-spire-svid\n")
 }

@@ -1,4 +1,4 @@
-# 🌸 Testing Framework for caddy-spire-client
+# 🌸 Testing Framework for caddy-spire-svid
 
 This directory contains a comprehensive, multi-level testing framework designed to validate our SPIFFE/SPIRE + Caddy integration from basic unit tests to full containerized deployments.
 
@@ -134,7 +134,7 @@ make test-level4
 ```
 
 **Expected results:**
-- Container receives valid SPIFFE ID: `spiffe://recoverysky.org/cmd/inanna/caddy-spire-client-test`
+- Container receives valid SPIFFE ID: `spiffe://recoverysky.org/cmd/inanna/caddy-spire-svid-test`
 - SPIRE socket connectivity confirmed
 - SVID retrieval successful with proper certificate validation
 

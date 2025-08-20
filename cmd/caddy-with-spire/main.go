@@ -9,7 +9,7 @@ import (
 	_ "github.com/caddyserver/caddy/v2/modules/standard"
 
 	// Our SPIRE certificate issuer module
-	_ "github.com/jenova-marie/caddy-spire-client/pkg/caddyspire"
+	_ "github.com/jenova-marie/caddy-spire-svid/pkg/caddyspire"
 )
 
 func main() {

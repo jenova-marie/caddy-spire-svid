@@ -1,4 +1,4 @@
-module github.com/jenova-marie/caddy-spire-client
+module github.com/jenova-marie/caddy-spire-svid
 
 go 1.24.2
 

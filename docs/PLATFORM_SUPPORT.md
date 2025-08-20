@@ -101,7 +101,7 @@ make docker-push-multiarch-caddy # Custom Caddy
 
 | Binary | linux/amd64 | linux/arm64 | darwin/amd64 | darwin/arm64 | windows/amd64 |
 |--------|-------------|-------------|--------------|--------------|---------------|
-| **caddy-spire-client** | ~16MB | ~15MB | ~17MB | ~16MB | ~16MB |
+| **caddy-spire-svid** | ~16MB | ~15MB | ~17MB | ~16MB | ~16MB |
 | **caddy-with-spire** | ~67MB | ~63MB | ~69MB | ~65MB | ~67MB |
 | **external-provider** | ~16MB | ~15MB | ~17MB | ~16MB | ~16MB |
 | **spire-helper** | ~16MB | ~15MB | ~17MB | ~16MB | ~16MB |
@@ -147,7 +147,7 @@ make build-all
 docker buildx ls
 
 # Test specific architecture (with QEMU emulation)
-docker run --rm --platform linux/arm64 caddy-spire-client:latest -version
+docker run --rm --platform linux/arm64 caddy-spire-svid:latest -version
 ```
 
 ## 🔍 **Troubleshooting**

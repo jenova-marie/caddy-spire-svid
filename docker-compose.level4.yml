@@ -3,12 +3,12 @@
 
 services:
   # SPIRE socket diagnostic container
-  caddy-spire-client-test:
+  caddy-spire-svid-test:
     build:
       context: .
       dockerfile: Dockerfile.spire-test
-    container_name: caddy-spire-client-test
-    hostname: caddy-spire-client-test
+    container_name: caddy-spire-svid-test
+    hostname: caddy-spire-svid-test
     # Use default Docker network
     environment:
       - SPIRE_SOCKET_PATH=/tmp/spire-agent/public/api.sock

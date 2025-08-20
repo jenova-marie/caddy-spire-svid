@@ -3,16 +3,16 @@
 
 services:
   # Containerized Caddy with SPIRE Module using default network
-  caddy-spire-client-test:
+  caddy-spire-svid-test:
     build:
       context: .
       dockerfile: Dockerfile.caddy
       cache_from:
-        - caddy-spire-client:latest
+        - caddy-spire-svid:latest
       args:
         BUILDKIT_INLINE_CACHE: 1
-    container_name: caddy-spire-client-test
-    hostname: caddy-spire-client-test
+    container_name: caddy-spire-svid-test
+    hostname: caddy-spire-svid-test
     # Use default Docker network and expose ports to host
     ports:
       - "8080:8080"    # HTTP

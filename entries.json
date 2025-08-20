@@ -291,12 +291,12 @@
   },
   {
     "entry_id": "cb57226e-32bd-42fb-aa1a-c99816c3fc68",
-    "spiffe_id": "spiffe://recoverysky.org/cmd/inanna/caddy-spire-client-test",
+    "spiffe_id": "spiffe://recoverysky.org/cmd/inanna/caddy-spire-svid-test",
     "parent_id": "spiffe://recoverysky.org/agent-group/cmd/inanna",
     "x509_svid_ttl": "default",
     "jwt_svid_ttl": "default",
     "selectors": [
-      "docker:label:com.docker.compose.service:caddy-spire-client-test"
+      "docker:label:com.docker.compose.service:caddy-spire-svid-test"
     ],
     "dns_names": [
       "10.10.10.11",

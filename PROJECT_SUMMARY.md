@@ -7,9 +7,9 @@ This project now provides **5 complete integration methods** for using SPIFFE/SP
 ### 📦 **Project Structure** 
 
 ```
-caddy-spire-client/
+caddy-spire-svid/
 ├── 🔧 cmd/
-│   ├── caddy-spire-client/         # Original CLI tool
+│   ├── caddy-spire-svid/         # Original CLI tool
 │   └── caddy-with-spire/           # Custom Caddy with SPIRE module
 ├── 📚 pkg/
 │   ├── spire/                      # Shared SPIRE client library
@@ -30,7 +30,7 @@ caddy-spire-client/
 
 ### 🚀 **Built Binaries**
 
-1. **`caddy-spire-client`** (16MB) - Original CLI tool
+1. **`caddy-spire-svid`** (16MB) - Original CLI tool
 2. **`caddy-with-spire`** (67MB) - Custom Caddy with SPIRE module  
 3. **`external-provider`** (16MB) - External certificate provider service
 4. **`spire-helper`** (16MB) - File-based legacy support tool

@@ -13,7 +13,7 @@ import (
 	"github.com/caddyserver/caddy/v2/caddyconfig/caddyfile"
 	"go.uber.org/zap"
 
-	"github.com/jenova-marie/caddy-spire-client/pkg/spire"
+	"github.com/jenova-marie/caddy-spire-svid/pkg/spire"
 )
 
 func init() {

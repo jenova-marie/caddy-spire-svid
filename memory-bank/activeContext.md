@@ -7,7 +7,7 @@
 - .github/workflows/ci.yml
 - .github/workflows/release.yml
 - .golangci.yml
-- cmd/caddy-spire-client/main.go
+- cmd/caddy-spire-svid/main.go
 - cmd/caddy-with-spire/main.go
 - docker-compose.level4.yml
 - docker-compose.level5.yml
@@ -45,7 +45,7 @@
 - .github/workflows/ci.yml
 - .github/workflows/release.yml
 - .golangci.yml
-- cmd/caddy-spire-client/main.go
+- cmd/caddy-spire-svid/main.go
 - cmd/caddy-with-spire/main.go
 - coverage.html
 - docker-compose.level4.yml
@@ -85,7 +85,7 @@
 - .github/workflows/ci.yml
 - .github/workflows/release.yml
 - .golangci.yml
-- cmd/caddy-spire-client/main.go
+- cmd/caddy-spire-svid/main.go
 - cmd/caddy-with-spire/main.go
 - coverage.html
 - docker-compose.level4.yml
@@ -124,7 +124,7 @@
 - .cursor/mcp.json
 - .github/workflows/ci.yml
 - .github/workflows/release.yml
-- cmd/caddy-spire-client/main.go
+- cmd/caddy-spire-svid/main.go
 - cmd/caddy-with-spire/main.go
 - coverage.html
 - docker-compose.level4.yml
@@ -163,7 +163,7 @@
 - .cursor/mcp.json
 - .github/workflows/ci.yml
 - .github/workflows/release.yml
-- cmd/caddy-spire-client/main.go
+- cmd/caddy-spire-svid/main.go
 - cmd/caddy-with-spire/main.go
 - coverage.html
 - docker-compose.caddy.yml
@@ -205,7 +205,7 @@
 - .cursor/mcp.json
 - .github/workflows/ci.yml
 - .github/workflows/release.yml
-- cmd/caddy-spire-client/main.go
+- cmd/caddy-spire-svid/main.go
 - cmd/caddy-with-spire/main.go
 - coverage.html
 - docker-compose.caddy.yml
@@ -261,7 +261,7 @@
 - .cursor/mcp.json
 - .github/workflows/ci.yml
 - .github/workflows/release.yml
-- cmd/caddy-spire-client/main.go
+- cmd/caddy-spire-svid/main.go
 - cmd/caddy-with-spire/main.go
 - coverage.html
 - docker-compose.caddy.yml

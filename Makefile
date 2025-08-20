@@ -1,4 +1,4 @@
-# 🌸 Comprehensive Testing Framework for caddy-spire-client
+# 🌸 Comprehensive Testing Framework for caddy-spire-svid
 # Multi-level testing from mocks to full containerized deployments
 
 .PHONY: test test-all test-level1 test-level2 test-level3 test-level4 test-diagnostics
@@ -23,7 +23,7 @@ PKG_DIR = pkg
 
 # Docker Configuration
 DOCKER_REGISTRY = ghcr.io
-DOCKER_REPO = jenova-marie/caddy-spire-client
+DOCKER_REPO = jenova-marie/caddy-spire-svid
 DOCKER_IMAGE_CADDY = $(DOCKER_REGISTRY)/$(DOCKER_REPO)
 DOCKER_TAG ?= latest
 VERSION_TAG ?= v1.0.4
@@ -36,7 +36,7 @@ VERSION_TAG ?= v1.0.4
 all: build
 
 # Build all main project binaries
-build: build-caddy-spire-client build-caddy-with-spire
+build: build-caddy-spire-svid build-caddy-with-spire
 	@echo "$(GREEN)✅ All project binaries built successfully!$(RESET)"
 
 # Build release artifacts for distribution
@@ -48,22 +48,22 @@ release: clean build-all
 			ext=""; \
 			if [ "$$os" = "windows" ]; then ext=".exe"; fi; \
 			echo "$(CYAN)Building $$os-$$arch...$(RESET)"; \
-			GOOS=$$os GOARCH=$$arch go build -ldflags "-s -w" -o dist/caddy-spire-client-$$os-$$arch$$ext ./cmd/caddy-spire-client; \
+			GOOS=$$os GOARCH=$$arch go build -ldflags "-s -w" -o dist/caddy-spire-svid-$$os-$$arch$$ext ./cmd/caddy-spire-svid; \
 			if [ "$$os" = "windows" ]; then \
-				cd dist && zip -q caddy-spire-client-$$os-$$arch.zip caddy-spire-client-$$os-$$arch$$ext && cd ..; \
+				cd dist && zip -q caddy-spire-svid-$$os-$$arch.zip caddy-spire-svid-$$os-$$arch$$ext && cd ..; \
 			else \
-				cd dist && tar -czf archives/caddy-spire-client-$$os-$$arch.tar.gz caddy-spire-client-$$os-$$arch && cd ..; \
+				cd dist && tar -czf archives/caddy-spire-svid-$$os-$$arch.tar.gz caddy-spire-svid-$$os-$$arch && cd ..; \
 			fi; \
 		done; \
 	done
 	@echo "$(GREEN)✅ Release artifacts built in dist/archives/$(RESET)"
 
-# Build the main caddy-spire-client binary
-build-caddy-spire-client:
-	@echo "$(CYAN)🔨 Building caddy-spire-client...$(RESET)"
+# Build the main caddy-spire-svid binary
+build-caddy-spire-svid:
+	@echo "$(CYAN)🔨 Building caddy-spire-svid...$(RESET)"
 	@mkdir -p $(BIN_DIR)
-	go build -o $(BIN_DIR)/caddy-spire-client cmd/caddy-spire-client/main.go
-	@echo "$(GREEN)✅ caddy-spire-client built: $(BIN_DIR)/caddy-spire-client$(RESET)"
+	go build -o $(BIN_DIR)/caddy-spire-svid cmd/caddy-spire-svid/main.go
+	@echo "$(GREEN)✅ caddy-spire-svid built: $(BIN_DIR)/caddy-spire-svid$(RESET)"
 
 # Build the custom Caddy with SPIRE module
 build-caddy-with-spire:
@@ -75,7 +75,7 @@ build-caddy-with-spire:
 # Install binaries to $GOPATH/bin
 install: build
 	@echo "$(CYAN)📦 Installing binaries to GOPATH...$(RESET)"
-	go install ./cmd/caddy-spire-client
+	go install ./cmd/caddy-spire-svid
 	go install ./cmd/caddy-with-spire
 	@echo "$(GREEN)✅ Binaries installed to GOPATH/bin$(RESET)"
 
@@ -180,7 +180,7 @@ test: test-level1 test-level2-unit
 # All levels testing (requires SPIRE agent + Docker)
 test-all: test-level1 test-level2 test-level3 test-level4 test-level5
 	@echo "$(GREEN)🎉 ALL TEST LEVELS (1-5) COMPLETED!$(RESET)"
-	@echo "$(MAGENTA)💖 Your caddy-spire-client is battle-tested!$(RESET)"
+	@echo "$(MAGENTA)💖 Your caddy-spire-svid is battle-tested!$(RESET)"
 	@echo "$(CYAN)📊 Progressive Testing Results:$(RESET)"
 	@echo "  ✅ Level 1: Mock-based unit testing"
 	@echo "  ✅ Level 2: Bare metal client testing"
@@ -403,7 +403,7 @@ help:
 	@echo "$(GREEN)🏗️ Main Project Targets:$(RESET)"
 	@echo "  $(YELLOW)all$(RESET)            - Build all main project binaries (default)"
 	@echo "  $(YELLOW)build$(RESET)          - Build all main project binaries"
-	@echo "  $(YELLOW)build-caddy-spire-client$(RESET) - Build caddy-spire-client binary"
+	@echo "  $(YELLOW)build-caddy-spire-svid$(RESET) - Build caddy-spire-svid binary"
 	@echo "  $(YELLOW)build-caddy-with-spire$(RESET)   - Build custom Caddy with SPIRE module"
 	@echo "  $(YELLOW)install$(RESET)        - Install binaries to GOPATH/bin"
 	@echo ""

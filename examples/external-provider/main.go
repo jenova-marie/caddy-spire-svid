@@ -1,5 +1,5 @@
 // Package main demonstrates Method 2: External Certificate Provider
-// This approach runs caddy-spire-client as a separate service that provides
+// This approach runs caddy-spire-svid as a separate service that provides
 // certificates to Caddy via shared file storage.
 package main
 
@@ -12,7 +12,7 @@ import (
 	"path/filepath"
 	"time"
 
-	"github.com/jenova-marie/caddy-spire-client/pkg/spire"
+	"github.com/jenova-marie/caddy-spire-svid/pkg/spire"
 )
 
 const (

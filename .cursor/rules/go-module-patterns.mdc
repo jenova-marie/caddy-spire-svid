@@ -9,7 +9,7 @@ alwaysApply: false
 
 ### Root Module
 ```go
-module github.com/jenova-marie/caddy-spire-client
+module github.com/jenova-marie/caddy-spire-svid
 ```
 
 ### Package Organization
@@ -26,8 +26,8 @@ pkg/
 ### Internal Package Imports
 ```go
 // Always use full module path for internal imports
-import "github.com/jenova-marie/caddy-spire-client/pkg/spire"
-import "github.com/jenova-marie/caddy-spire-client/pkg/caddyspire"
+import "github.com/jenova-marie/caddy-spire-svid/pkg/spire"
+import "github.com/jenova-marie/caddy-spire-svid/pkg/caddyspire"
 ```
 
 ### External Dependencies
@@ -57,28 +57,28 @@ package spire_test  // External test package
 
 import (
     "testing"
-    "github.com/jenova-marie/caddy-spire-client/pkg/spire"
-    "github.com/jenova-marie/caddy-spire-client/tests/mocks"
+    "github.com/jenova-marie/caddy-spire-svid/pkg/spire"
+    "github.com/jenova-marie/caddy-spire-svid/tests/mocks"
 )
 ```
 
 ### Mock Import Pattern
 ```go
 // Mock files in tests/mocks/
-import "github.com/jenova-marie/caddy-spire-client/tests/mocks"
+import "github.com/jenova-marie/caddy-spire-svid/tests/mocks"
 ```
 
 ## Binary Command Patterns
 
 ### Main Command Structure
 ```go
-// cmd/caddy-spire-client/main.go
+// cmd/caddy-spire-svid/main.go
 package main
 
 import (
     "context"
     "flag"
-    "github.com/jenova-marie/caddy-spire-client/pkg/spire"
+    "github.com/jenova-marie/caddy-spire-svid/pkg/spire"
 )
 
 func main() {
@@ -94,7 +94,7 @@ package main
 import (
     caddycmd "github.com/caddyserver/caddy/v2/cmd"
     _ "github.com/caddyserver/caddy/v2/modules/standard"
-    _ "github.com/jenova-marie/caddy-spire-client/pkg/caddyspire"
+    _ "github.com/jenova-marie/caddy-spire-svid/pkg/caddyspire"
 )
 
 func main() {

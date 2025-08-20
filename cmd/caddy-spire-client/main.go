@@ -1,4 +1,4 @@
-// caddy-spire-client is a demonstration tool that shows how to integrate
+// caddy-spire-svid is a demonstration tool that shows how to integrate
 // SPIFFE/SPIRE workload API with Caddy server for automated certificate management.
 package main
 
@@ -14,7 +14,7 @@ import (
 
 	"github.com/spiffe/go-spiffe/v2/svid/x509svid"
 
-	"github.com/jenova-marie/caddy-spire-client/pkg/spire"
+	"github.com/jenova-marie/caddy-spire-svid/pkg/spire"
 )
 
 const (
@@ -107,7 +107,7 @@ func main() {
 }
 
 func printVersion() {
-	fmt.Printf("caddy-spire-client %s\n", Version)
+	fmt.Printf("caddy-spire-svid %s\n", Version)
 	fmt.Printf("Git commit: %s\n", GitCommit)
 	fmt.Printf("Build time: %s\n", BuildTime)
 }
@@ -125,5 +125,5 @@ func printHelp() {
 	fmt.Printf("  %s\n", os.Args[0])
 	fmt.Printf("  %s -socket /custom/path/api.sock -refresh 1m\n", os.Args[0])
 	fmt.Println()
-	fmt.Println("For more information, visit: https://github.com/jenova-marie/caddy-spire-client")
+	fmt.Println("For more information, visit: https://github.com/jenova-marie/caddy-spire-svid")
 }

@@ -1,4 +1,4 @@
-# 🌸 TODO: Future Enhancements for caddy-spire-client
+# 🌸 TODO: Future Enhancements for caddy-spire-svid
 
 ## 🚀 Phase 5: Full Docker Compose Orchestration Test Suite
 
@@ -6,7 +6,7 @@
 Create a comprehensive end-to-end testing environment that validates the complete SPIFFE/SPIRE ecosystem with our Caddy integration in a fully containerized setup.
 
 ### Implementation Plan
-- **Full SPIRE Stack**: Deploy `spire-server`, `spire-agent`, and `caddy-spire-client` in Docker Compose
+- **Full SPIRE Stack**: Deploy `spire-server`, `spire-agent`, and `caddy-spire-svid` in Docker Compose
 - **Network Isolation**: Test cross-container communication with proper networking
 - **Volume Management**: Implement proper secret/certificate sharing between containers
 - **Health Checks**: Comprehensive health monitoring for all services
@@ -16,7 +16,7 @@ Create a comprehensive end-to-end testing environment that validates the complet
 ### Technical Components
 1. **spire-server container**: Standalone SPIRE server with persistent storage
 2. **spire-agent container**: Agent with proper workload attestation
-3. **caddy-spire-client container**: Our custom Caddy with SPIRE module
+3. **caddy-spire-svid container**: Our custom Caddy with SPIRE module
 4. **Test orchestration**: Automated testing of the full certificate lifecycle
 5. **Monitoring**: Log aggregation and health monitoring across all services
 

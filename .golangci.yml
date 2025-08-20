@@ -14,7 +14,7 @@ linters-settings:
   lll:
     line-length: 140
   goimports:
-    local-prefixes: github.com/jenova-marie/caddy-spire-client
+    local-prefixes: github.com/jenova-marie/caddy-spire-svid
 
 linters:
   enable:

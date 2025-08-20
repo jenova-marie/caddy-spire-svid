@@ -1,6 +1,6 @@
 # 🌸 Caddy Module Integration Guide
 
-This guide shows how to integrate the `caddy-spire-client` with Caddy as a custom module.
+This guide shows how to integrate the `caddy-spire-svid` with Caddy as a custom module.
 
 ## Creating a Caddy Module
 
@@ -16,7 +16,7 @@ import (
     "github.com/caddyserver/caddy/v2"
     "github.com/caddyserver/caddy/v2/caddyconfig/caddyfile"
     "github.com/caddyserver/caddy/v2/modules/caddytls"
-    "github.com/jenova-marie/caddy-spire-client/pkg/spire"
+    "github.com/jenova-marie/caddy-spire-svid/pkg/spire"
 )
 
 func init() {
@@ -185,7 +185,7 @@ Build your custom Caddy:
 ```bash
 go mod init caddy-with-spire
 go get github.com/caddyserver/caddy/v2
-go get github.com/jenova-marie/caddy-spire-client
+go get github.com/jenova-marie/caddy-spire-svid
 go build -o caddy-spire
 ```
 

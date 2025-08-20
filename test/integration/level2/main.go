@@ -9,7 +9,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/jenova-marie/caddy-spire-client/pkg/spire"
+	"github.com/jenova-marie/caddy-spire-svid/pkg/spire"
 )
 
 func main() {

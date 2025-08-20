@@ -1,4 +1,4 @@
-// Package main demonstrates basic integration of caddy-spire-client
+// Package main demonstrates basic integration of caddy-spire-svid
 // with a simple HTTP server using SPIFFE/SPIRE certificates.
 package main
 
@@ -8,7 +8,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/jenova-marie/caddy-spire-client/pkg/spire"
+	"github.com/jenova-marie/caddy-spire-svid/pkg/spire"
 )
 
 func main() {

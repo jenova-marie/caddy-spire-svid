@@ -96,9 +96,9 @@ func runDiagnosticContainer(ctx context.Context) bool {
 	// Run the diagnostic container with proper exit code propagation
 	var cmd *exec.Cmd
 	if exec.Command("docker", "compose", "version").Run() == nil {
-		cmd = exec.CommandContext(ctx, "docker", "compose", "-f", "docker-compose.level4.yml", "up", "--build", "--exit-code-from", "caddy-spire-client-test")
+		cmd = exec.CommandContext(ctx, "docker", "compose", "-f", "docker-compose.level4.yml", "up", "--build", "--exit-code-from", "caddy-spire-svid-test")
 	} else {
-		cmd = exec.CommandContext(ctx, "docker-compose", "-f", "docker-compose.level4.yml", "up", "--build", "--exit-code-from", "caddy-spire-client-test")
+		cmd = exec.CommandContext(ctx, "docker-compose", "-f", "docker-compose.level4.yml", "up", "--build", "--exit-code-from", "caddy-spire-svid-test")
 	}
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
