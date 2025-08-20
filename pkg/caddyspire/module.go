@@ -133,21 +133,18 @@ func (sm *SpireManager) GetCertificate(ctx context.Context, hello *tls.ClientHel
 		sm.logger.Info("🎉 Successfully connected to SPIRE agent")
 	}
 
-	// Get TLS config from SPIRE client which handles the certificate automatically
-	tlsConfig := sm.client.GetTLSConfig()
-	if tlsConfig.GetCertificate == nil {
-		return nil, fmt.Errorf("SPIRE client GetCertificate function is nil")
-	}
-
-	// Use the SPIRE client's GetCertificate function
-	cert, err := tlsConfig.GetCertificate(hello)
+	// Get certificate with full chain (SVID + intermediates + CA)
+	cert, err := sm.client.GetCertificateWithChain()
 	if err != nil {
-		sm.logger.Error("Failed to get certificate from SPIRE", zap.Error(err))
-		return nil, fmt.Errorf("failed to get certificate from SPIRE: %w", err)
+		sm.logger.Error("Failed to get certificate chain from SPIRE", zap.Error(err))
+		return nil, fmt.Errorf("failed to get certificate chain from SPIRE: %w", err)
 	}
 
-	sm.logger.Debug("🎉 Successfully got certificate via SPIRE",
-		zap.String("server_name", hello.ServerName))
+	// Log certificate chain information for debugging
+	sm.logger.Debug("🎉 Successfully got certificate chain via SPIRE",
+		zap.String("server_name", hello.ServerName),
+		zap.Int("chain_length", len(cert.Certificate)),
+		zap.String("leaf_subject", cert.Leaf.Subject.String()))
 
 	return cert, nil
 }

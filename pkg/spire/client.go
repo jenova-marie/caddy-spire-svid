@@ -5,6 +5,7 @@ package spire
 import (
 	"context"
 	"crypto/tls"
+	"crypto/x509"
 	"fmt"
 	"log"
 	"time"
@@ -247,4 +248,88 @@ func (c *Client) getSVIDWithTimeout(ctx context.Context) (*x509svid.SVID, error)
 // GetCurrentSVID returns the current SVID from the source
 func (c *Client) GetCurrentSVID() (*x509svid.SVID, error) {
 	return c.source.GetX509SVID()
+}
+
+// GetTrustBundle returns the current trust bundle (CA certificates)
+func (c *Client) GetTrustBundle() ([]*x509.Certificate, error) {
+	// Use the underlying client context to get bundles
+	ctx, cancel := context.WithTimeout(c.ctx, c.refreshTimeout)
+	defer cancel()
+
+	// Get bundle using workload API client
+	client, err := workloadapi.New(ctx, workloadapi.WithAddr("unix:"+c.socketPath))
+	if err != nil {
+		return nil, fmt.Errorf("failed to create workload API client for bundles: %w", err)
+	}
+	defer client.Close()
+
+	bundles, err := client.FetchX509Bundles(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("failed to fetch X509 bundles: %w", err)
+	}
+
+	// Get the bundle for our trust domain
+	var allCerts []*x509.Certificate
+	for _, bundle := range bundles.Bundles() {
+		allCerts = append(allCerts, bundle.X509Authorities()...)
+	}
+
+	if len(allCerts) == 0 {
+		return nil, fmt.Errorf("no CA certificates found in trust bundle")
+	}
+
+	return allCerts, nil
+}
+
+// GetCertificateWithChain returns a TLS certificate with the full certificate chain
+// including the SVID certificate and CA certificates from the trust bundle
+func (c *Client) GetCertificateWithChain() (*tls.Certificate, error) {
+	// Get the current SVID
+	svid, err := c.GetCurrentSVID()
+	if err != nil {
+		return nil, fmt.Errorf("failed to get SVID: %w", err)
+	}
+
+	if len(svid.Certificates) == 0 {
+		return nil, fmt.Errorf("SVID contains no certificates")
+	}
+
+	// Get the trust bundle (CA certificates)
+	trustBundle, err := c.GetTrustBundle()
+	if err != nil {
+		return nil, fmt.Errorf("failed to get trust bundle: %w", err)
+	}
+
+	// Build the certificate chain: [leaf SVID, intermediates..., CA]
+	var certChain [][]byte
+
+	// Add the SVID certificates (leaf + any intermediates)
+	for _, cert := range svid.Certificates {
+		certChain = append(certChain, cert.Raw)
+	}
+
+	// Add CA certificates from trust bundle
+	// Note: We need to be careful about the order and avoid duplicates
+	for _, caCert := range trustBundle {
+		// Only add if it's not already in the chain
+		isDuplicate := false
+		for _, existingCert := range svid.Certificates {
+			if existingCert.Equal(caCert) {
+				isDuplicate = true
+				break
+			}
+		}
+		if !isDuplicate {
+			certChain = append(certChain, caCert.Raw)
+		}
+	}
+
+	// Create the TLS certificate with the full chain
+	tlsCert := &tls.Certificate{
+		Certificate: certChain,
+		PrivateKey:  svid.PrivateKey,
+		Leaf:        svid.Certificates[0], // First certificate is always the leaf
+	}
+
+	return tlsCert, nil
 }
