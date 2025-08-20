@@ -373,7 +373,8 @@ diagnostic: test-diagnostics
 # =============================================================================
 coverage:
 	@echo "$(CYAN)📊 Generating test coverage report...$(RESET)"
-	go test -coverprofile=coverage.out ./$(TEST_DIR)/
+	@rm -f coverage.out coverage.html
+	go test -coverprofile=coverage.out ./$(PKG_DIR)/spire/ ./$(TEST_DIR)/mocks/
 	go tool cover -html=coverage.out -o coverage.html
 	@echo "$(GREEN)✅ Coverage report generated: coverage.html$(RESET)"
 	@echo "$(CYAN)🌐 Open with: open coverage.html$(RESET)"
