@@ -62,7 +62,7 @@ release: clean build-all
 build-caddy-spire-svid:
 	@echo "$(CYAN)🔨 Building caddy-spire-svid...$(RESET)"
 	@mkdir -p $(BIN_DIR)
-	go build -o $(BIN_DIR)/caddy-spire-svid cmd/caddy-spire-svid/main.go
+	go build -o $(BIN_DIR)/caddy-spire-svid ./cmd/caddy-spire-svid
 	@echo "$(GREEN)✅ caddy-spire-svid built: $(BIN_DIR)/caddy-spire-svid$(RESET)"
 
 # Build the custom Caddy with SPIRE module
