@@ -2,9 +2,9 @@ name: 🚀 CI Pipeline
 
 on:
   push:
-    branches: [ root, dev, test, release ]
+    branches: [ root, main, dev, test, release ]
   pull_request:
-    branches: [ root, dev, test, release ]
+    branches: [ root, main, dev, test, release ]
 
 env:
   GO_VERSION: '1.24.2'
