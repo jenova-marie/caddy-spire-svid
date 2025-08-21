@@ -42,7 +42,16 @@ This directory contains standardized examples for integrating SPIFFE/SPIRE with 
   - Custom timeout settings
   - All configuration options
 
-### 5. Programmatic Integration (`basic-integration.go`)
+### 5. Layer 4 Proxy (`05-layer4.caddyfile`)
+- **Purpose**: TCP/UDP proxying with SPIFFE-secured TLS termination
+- **Features**:
+  - Layer 4 TCP proxy configuration
+  - TLS termination with SPIRE certificates
+  - Backend proxying after TLS termination
+  - Mixed TLS/non-TLS traffic handling
+  - Demonstration backend server
+
+### 6. Programmatic Integration (`basic-integration.go`)
 - **Purpose**: Shows direct use of the SPIRE client in Go applications
 - **Features**:
   - Direct API usage
@@ -99,6 +108,21 @@ caddy run --config examples/04-features.json
 
 # Update /etc/hosts
 echo "127.0.0.1 features.example.com percentage-refresh.example.com interval-refresh.example.com custom-socket.example.com timeout-demo.example.com" >> /etc/hosts
+```
+
+#### Layer 4 Proxy Example
+```bash
+# Run with Layer 4 configuration
+caddy run --config examples/05-layer4.caddyfile
+
+# Test TLS termination on port 1443
+curl -k https://localhost:1443
+
+# Test standard HTTPS on port 8443
+curl -k https://localhost:8443
+
+# Test backend directly
+curl http://localhost:8080
 ```
 
 #### Programmatic Integration

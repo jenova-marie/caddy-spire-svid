@@ -14,13 +14,14 @@
 
 ## 🎯 Overview
 
-The **Caddy SPIRE Client** provides seamless integration between [SPIFFE/SPIRE](https://spiffe.io/) identity framework and [Caddy](https://caddyserver.com/) web server. It automatically fetches, refreshes, and manages SPIFFE X.509 SVIDs (SPIFFE Verifiable Identity Documents) for use as TLS certificates in Caddy.
+The **Caddy SPIRE Client** provides seamless integration between [SPIFFE/SPIRE](https://spiffe.io/) identity framework and [Caddy](https://caddyserver.com/) web server with Layer 4 (TCP/UDP) proxy capabilities. It automatically fetches, refreshes, and manages SPIFFE X.509 SVIDs (SPIFFE Verifiable Identity Documents) for use as TLS certificates in both HTTP/HTTPS and Layer 4 proxy scenarios.
 
 ### ✨ Key Features
 
 - 🔄 **Automatic Certificate Rotation**: Continuously refreshes SPIFFE certificates before expiry
 - 🔒 **Zero-Trust Security**: Leverages SPIFFE's cryptographic identity for service authentication
 - 🚀 **High Performance**: Thread-safe, efficient certificate management with minimal overhead
+- 🌐 **Layer 4 Proxy**: TCP/UDP proxying with SPIFFE-secured TLS termination
 - 🛠️ **Easy Integration**: Simple Go API and CLI tool for quick setup
 - 🐳 **Container Ready**: Docker support with multi-arch builds
 - 💖 **Production Ready**: Comprehensive testing, logging, and error handling
