@@ -15,17 +15,17 @@ services:
     hostname: caddy-spire-svid-test
     # Use default Docker network and expose ports to host
     ports:
-      - "8080:8080"    # HTTP
-      - "8443:8443"    # HTTPS with SPIRE
-      - "2019:2019"    # Admin API
+      - "9080:8080"    # HTTP (mapped to avoid conflicts)
+      - "9443:8443"    # HTTPS with SPIRE (mapped to avoid conflicts)
+      - "9019:2020"    # Admin API (mapped to avoid conflicts)
     environment:
       - SPIRE_SOCKET_PATH=/tmp/spire-agent/public/api.sock
-      - CADDY_ADMIN=0.0.0.0:2019
+      - CADDY_ADMIN=0.0.0.0:2020
     volumes:
       # Mount the SPIRE socket directory
       - /tmp/spire-agent/public:/tmp/spire-agent/public:ro
-      # Use SPIRE integration Caddyfile
-      - ./examples/caddyfile-spire-integration:/etc/caddy/Caddyfile:ro
+      # Use test SPIRE integration Caddyfile
+      - ./test/docker/test.caddyfile:/etc/caddy/Caddyfile:ro
     restart: unless-stopped
     healthcheck:
       test: ["CMD-SHELL", "curl -f http://localhost:8080 || exit 1"]

@@ -3,7 +3,7 @@
   "_description": "Test configuration for Docker/container testing - NOT FOR DOCUMENTATION",
   
   "admin": {
-    "listen": "0.0.0.0:2019"
+    "listen": "0.0.0.0:2020"
   },
   
   "logging": {

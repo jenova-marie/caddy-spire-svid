@@ -187,6 +187,8 @@ test-all: test-level1 test-level2 test-level3 test-level4 test-level5
 	@echo "  ✅ Level 3: Comprehensive Caddy + SPIRE integration"
 	@echo "  ✅ Level 4: Basic SPIRE socket connectivity"
 	@echo "  ✅ Level 5: Containerized comprehensive testing"
+	@echo "$(CYAN)🧹 Cleaning up Docker buildx containers...$(RESET)"
+	@docker container stop buildx_buildkit_multiarch-builder0 2>/dev/null && docker container rm buildx_buildkit_multiarch-builder0 2>/dev/null && echo "$(GREEN)  ✅ Cleaned up buildx container$(RESET)" || echo "$(YELLOW)  ℹ️  No buildx containers to clean$(RESET)"
 
 # =============================================================================
 # 🔍 LEVEL 4: Basic SPIRE Socket Connectivity (Container Diagnostic)

@@ -80,9 +80,9 @@ func checkPrerequisites() bool {
 	}
 	fmt.Println("   ✅ SPIRE agent socket found")
 
-	// Check for Caddyfile
-	if _, err := os.Stat("examples/caddyfile-local-host-test"); os.IsNotExist(err) {
-		fmt.Println("❌ examples/caddyfile-local-host-test not found")
+	// Check for test Caddyfile
+	if _, err := os.Stat("test/integration/level3/test.caddyfile"); os.IsNotExist(err) {
+		fmt.Println("❌ test/integration/level3/test.caddyfile not found")
 		return false
 	}
 	fmt.Println("   ✅ Caddyfile found")
@@ -94,8 +94,8 @@ func checkPrerequisites() bool {
 func startCaddyWithSPIRE(ctx context.Context) (*exec.Cmd, error) {
 	fmt.Println("🚀 Starting Caddy with SPIRE integration...")
 
-	// Get absolute path to Caddyfile
-	caddyfilePath, err := filepath.Abs("examples/caddyfile-local-host-test")
+	// Get absolute path to test Caddyfile
+	caddyfilePath, err := filepath.Abs("test/integration/level3/test.caddyfile")
 	if err != nil {
 		return nil, fmt.Errorf("failed to get Caddyfile path: %w", err)
 	}

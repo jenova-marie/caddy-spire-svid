@@ -3,7 +3,7 @@
 
 {
     # Global options
-    admin 0.0.0.0:2019
+    admin 0.0.0.0:2020
     debug
     # Disable automatic HTTPS on 80/443
     auto_https off

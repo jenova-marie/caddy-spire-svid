@@ -36,9 +36,9 @@ FROM caddy:2.10-alpine
 # Copy our custom Caddy binary (main artifact)
 COPY --from=builder /app/caddy-with-spire /usr/bin/caddy
 
-# Copy example Caddyfiles (cached separately from source changes)
-COPY examples/caddyfile-spire-module /etc/caddy/Caddyfile.spire-example
-COPY examples/caddy-json-spire-module.json /etc/caddy/caddy.json.spire-example
+# Copy test configurations for container testing
+COPY test/docker/test.caddyfile /etc/caddy/Caddyfile.test
+COPY test/docker/test-caddy-config.json /etc/caddy/caddy.json.test
 
 # Default socket path for SPIRE
 ENV SPIRE_SOCKET_PATH=/tmp/spire-agent/public/api.sock
