@@ -17,10 +17,13 @@ services:
     ports:
       - "9080:8080"    # HTTP (mapped to avoid conflicts)
       - "9443:8443"    # HTTPS with SPIRE (mapped to avoid conflicts)
+      - "9444:9443"    # Layer 4 TLS proxy (mapped to avoid conflicts)
       - "9019:2020"    # Admin API (mapped to avoid conflicts)
     environment:
       - SPIRE_SOCKET_PATH=/tmp/spire-agent/public/api.sock
       - CADDY_ADMIN=0.0.0.0:2020
+      - SPIRE_CERT_FILE=/tmp/spire-certs/cert.pem
+      - SPIRE_KEY_FILE=/tmp/spire-certs/key.pem
     volumes:
       # Mount the SPIRE socket directory
       - /tmp/spire-agent/public:/tmp/spire-agent/public:ro

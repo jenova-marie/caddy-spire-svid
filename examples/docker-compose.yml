@@ -30,6 +30,9 @@ services:
       - "2019:2019"  # Admin API
     environment:
       - CADDY_DEBUG=1
+      # File-based certificate management for Layer 4 integration (optional)
+      - SPIRE_CERT_FILE=/tmp/spire-certs/cert.pem
+      - SPIRE_KEY_FILE=/tmp/spire-certs/key.pem
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:80/health"]

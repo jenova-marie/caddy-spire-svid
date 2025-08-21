@@ -7,6 +7,7 @@ import (
 	"context"
 	"crypto/tls"
 	"fmt"
+	"os"
 	"time"
 
 	caddy "github.com/caddyserver/caddy/v2"
@@ -22,6 +23,8 @@ func init() {
 
 // SpireManager implements a Caddy certificate manager for SPIFFE/SPIRE integration.
 // It provides automatic certificate management using SPIFFE identities.
+// File-based certificate management is enabled via environment variables:
+// SPIRE_CERT_FILE and SPIRE_KEY_FILE for Layer 4 integration.
 type SpireManager struct {
 	// SocketPath is the path to the SPIRE agent socket.
 	// Defaults to "/tmp/spire-agent/public/api.sock"
@@ -58,9 +61,24 @@ func (sm *SpireManager) Provision(ctx caddy.Context) error {
 		sm.RefreshInterval = caddy.Duration(30 * time.Second)
 	}
 
+	// Check environment variables for file-based certificate management
+	certFile := os.Getenv("SPIRE_CERT_FILE")
+	keyFile := os.Getenv("SPIRE_KEY_FILE")
+
 	sm.logger.Info("🌸 Provisioning SPIRE certificate manager",
 		zap.String("socket_path", sm.SocketPath),
-		zap.Duration("refresh_interval", time.Duration(sm.RefreshInterval)))
+		zap.Duration("refresh_interval", time.Duration(sm.RefreshInterval)),
+		zap.String("cert_file_env", certFile),
+		zap.String("key_file_env", keyFile))
+
+	// Log file-based management status
+	if certFile != "" && keyFile != "" {
+		sm.logger.Info("📁 File-based certificate management enabled for Layer 4 integration",
+			zap.String("cert_file", certFile),
+			zap.String("key_file", keyFile))
+	} else if certFile != "" || keyFile != "" {
+		sm.logger.Warn("⚠️ Incomplete file-based configuration: both SPIRE_CERT_FILE and SPIRE_KEY_FILE must be set")
+	}
 
 	// Don't create SPIRE client during provisioning to avoid blocking Caddy startup
 	// The client will be created lazily when first certificate is requested
@@ -121,6 +139,8 @@ func (sm *SpireManager) GetCertificate(ctx context.Context, hello *tls.ClientHel
 		config := spire.Config{
 			SocketPath:      sm.SocketPath,
 			RefreshInterval: time.Duration(sm.RefreshInterval),
+			CertFile:        os.Getenv("SPIRE_CERT_FILE"),
+			KeyFile:         os.Getenv("SPIRE_KEY_FILE"),
 		}
 
 		client, err := spire.NewClient(config)

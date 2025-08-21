@@ -4,10 +4,16 @@ package spire
 
 import (
 	"context"
+	"crypto/ecdsa"
+	"crypto/rsa"
 	"crypto/tls"
 	"crypto/x509"
+	"encoding/pem"
 	"fmt"
 	"log"
+	"os"
+	"path/filepath"
+	"sync"
 	"time"
 
 	"github.com/spiffe/go-spiffe/v2/spiffetls/tlsconfig"
@@ -27,12 +33,23 @@ type Client struct {
 	refreshTimeout time.Duration
 	ctx            context.Context
 	cancel         context.CancelFunc
+
+	// File-based certificate management
+	certFile  string       // Path to certificate file
+	keyFile   string       // Path to private key file
+	fileMode  os.FileMode  // File permissions
+	fileMutex sync.RWMutex // Protects file operations
 }
 
 // Config holds configuration for the SPIRE client
 type Config struct {
-	SocketPath       string
-	RefreshInterval  time.Duration
+	SocketPath      string
+	RefreshInterval time.Duration
+
+	// File-based certificate management for Layer 4 integration
+	CertFile         string      // Path where certificate chain will be written
+	KeyFile          string      // Path where private key will be written
+	FileMode         os.FileMode // Permission mode for written files (defaults to 0600)
 	RefreshAtPercent int
 	RefreshTimeout   time.Duration // Timeout for all certificate operations (startup, refresh, etc.)
 }
@@ -46,6 +63,19 @@ func NewClient(config Config) (*Client, error) {
 	// Set default refresh timeout if not specified
 	if config.RefreshTimeout == 0 {
 		config.RefreshTimeout = 10 * time.Second
+	}
+
+	// Set default file mode if file-based management is enabled
+	if config.CertFile != "" && config.FileMode == 0 {
+		config.FileMode = 0600 // Read/write for owner only
+	}
+
+	// Validate file-based configuration
+	if config.CertFile != "" && config.KeyFile == "" {
+		return nil, fmt.Errorf("KeyFile must be specified when CertFile is set")
+	}
+	if config.KeyFile != "" && config.CertFile == "" {
+		return nil, fmt.Errorf("CertFile must be specified when KeyFile is set")
 	}
 
 	// Make RefreshInterval and RefreshAtPercent mutually exclusive
@@ -72,6 +102,9 @@ func NewClient(config Config) (*Client, error) {
 		refreshTimeout: config.RefreshTimeout,
 		ctx:            ctx,
 		cancel:         cancel,
+		certFile:       config.CertFile,
+		keyFile:        config.KeyFile,
+		fileMode:       config.FileMode,
 	}
 
 	// Perform initial certificate fetch at startup to catch attestation issues early
@@ -95,6 +128,16 @@ func NewClient(config Config) (*Client, error) {
 		log.Printf("   Valid from: %v", cert.NotBefore)
 		log.Printf("   Expires at: %v", cert.NotAfter)
 		log.Printf("   Lifetime: %v", cert.NotAfter.Sub(cert.NotBefore))
+	}
+
+	// Write initial certificate files if file-based management is enabled
+	if spireClient.certFile != "" {
+		if err := spireClient.writeCertificateFiles(); err != nil {
+			cancel()
+			source.Close()
+			return nil, fmt.Errorf("failed to write initial certificate files: %w", err)
+		}
+		log.Printf("📁 Certificate files written: %s, %s", spireClient.certFile, spireClient.keyFile)
 	}
 
 	// Start appropriate refresh strategy
@@ -141,6 +184,15 @@ func (c *Client) autoRefresh(interval time.Duration) {
 				log.Printf("error getting current SVID: %v", err)
 			} else if len(svid.Certificates) > 0 {
 				log.Printf("SVID available, expires at %v", svid.Certificates[0].NotAfter)
+
+				// Update certificate files if file-based management is enabled
+				if c.certFile != "" {
+					if err := c.writeCertificateFiles(); err != nil {
+						log.Printf("warning: failed to update certificate files: %v", err)
+					} else {
+						log.Printf("📁 Certificate files updated: %s, %s", c.certFile, c.keyFile)
+					}
+				}
 			}
 		}
 	}
@@ -192,6 +244,15 @@ func (c *Client) smartRefresh(refreshAtPercent int) {
 					log.Printf("error during certificate refresh: %v", err)
 				} else {
 					log.Printf("Certificate refresh completed successfully")
+
+					// Update certificate files if file-based management is enabled
+					if c.certFile != "" {
+						if err := c.writeCertificateFiles(); err != nil {
+							log.Printf("warning: failed to update certificate files: %v", err)
+						} else {
+							log.Printf("📁 Certificate files updated: %s, %s", c.certFile, c.keyFile)
+						}
+					}
 				}
 				// After refresh, recalculate timing for the new certificate
 				continue
@@ -332,4 +393,124 @@ func (c *Client) GetCertificateWithChain() (*tls.Certificate, error) {
 	}
 
 	return tlsCert, nil
+}
+
+// writeCertificateFiles writes the current SVID certificate chain and private key to disk
+// for use by Layer 4 or other file-based certificate consumers
+func (c *Client) writeCertificateFiles() error {
+	if c.certFile == "" || c.keyFile == "" {
+		return fmt.Errorf("certificate and key file paths must be configured")
+	}
+
+	// Get current SVID with full chain
+	cert, err := c.GetCertificateWithChain()
+	if err != nil {
+		return fmt.Errorf("failed to get certificate chain: %w", err)
+	}
+
+	c.fileMutex.Lock()
+	defer c.fileMutex.Unlock()
+
+	// Ensure directories exist
+	if err := os.MkdirAll(filepath.Dir(c.certFile), 0755); err != nil {
+		return fmt.Errorf("failed to create certificate directory: %w", err)
+	}
+	if err := os.MkdirAll(filepath.Dir(c.keyFile), 0755); err != nil {
+		return fmt.Errorf("failed to create key directory: %w", err)
+	}
+
+	// Write certificate chain in PEM format
+	certData, err := c.encodeCertificateChain(cert.Certificate)
+	if err != nil {
+		return fmt.Errorf("failed to encode certificate chain: %w", err)
+	}
+
+	if err := c.writeAtomicFile(c.certFile, certData); err != nil {
+		return fmt.Errorf("failed to write certificate file: %w", err)
+	}
+
+	// Write private key in PEM format
+	keyData, err := c.encodePrivateKey(cert.PrivateKey)
+	if err != nil {
+		return fmt.Errorf("failed to encode private key: %w", err)
+	}
+
+	if err := c.writeAtomicFile(c.keyFile, keyData); err != nil {
+		return fmt.Errorf("failed to write key file: %w", err)
+	}
+
+	return nil
+}
+
+// encodeCertificateChain encodes a certificate chain as PEM data
+func (c *Client) encodeCertificateChain(certChain [][]byte) ([]byte, error) {
+	var pemData []byte
+
+	for i, certDER := range certChain {
+		block := &pem.Block{
+			Type:  "CERTIFICATE",
+			Bytes: certDER,
+		}
+
+		// Add a comment for the first certificate (leaf)
+		if i == 0 {
+			block.Headers = map[string]string{
+				"Subject": "Leaf Certificate (SPIRE SVID)",
+			}
+		}
+
+		pemData = append(pemData, pem.EncodeToMemory(block)...)
+	}
+
+	return pemData, nil
+}
+
+// encodePrivateKey encodes a private key as PEM data
+func (c *Client) encodePrivateKey(privateKey interface{}) ([]byte, error) {
+	switch key := privateKey.(type) {
+	case *rsa.PrivateKey:
+		return pem.EncodeToMemory(&pem.Block{
+			Type:  "RSA PRIVATE KEY",
+			Bytes: x509.MarshalPKCS1PrivateKey(key),
+		}), nil
+	case *ecdsa.PrivateKey:
+		keyBytes, err := x509.MarshalECPrivateKey(key)
+		if err != nil {
+			return nil, fmt.Errorf("failed to marshal EC private key: %w", err)
+		}
+		return pem.EncodeToMemory(&pem.Block{
+			Type:  "EC PRIVATE KEY",
+			Bytes: keyBytes,
+		}), nil
+	default:
+		// Try PKCS#8 format as fallback
+		keyBytes, err := x509.MarshalPKCS8PrivateKey(privateKey)
+		if err != nil {
+			return nil, fmt.Errorf("unsupported private key type: %T", privateKey)
+		}
+		return pem.EncodeToMemory(&pem.Block{
+			Type:  "PRIVATE KEY",
+			Bytes: keyBytes,
+		}), nil
+	}
+}
+
+// writeAtomicFile writes data to a file atomically by writing to a temporary file
+// and then renaming it to the target file
+func (c *Client) writeAtomicFile(filename string, data []byte) error {
+	// Create temporary file in the same directory
+	tempFile := filename + ".tmp"
+
+	// Write to temporary file
+	if err := os.WriteFile(tempFile, data, c.fileMode); err != nil {
+		return fmt.Errorf("failed to write temporary file: %w", err)
+	}
+
+	// Atomically rename to target file
+	if err := os.Rename(tempFile, filename); err != nil {
+		os.Remove(tempFile) // Clean up temp file on error
+		return fmt.Errorf("failed to rename temporary file: %w", err)
+	}
+
+	return nil
 }

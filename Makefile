@@ -36,7 +36,7 @@ VERSION_TAG ?= v1.0.4
 all: build
 
 # Build all main project binaries
-build: build-caddy-spire-svid build-caddy-with-spire
+build: build-caddy-spire-svid build-caddy-with-spire build-caddy-spire-file-writer
 	@echo "$(GREEN)✅ All project binaries built successfully!$(RESET)"
 
 # Build release artifacts for distribution
@@ -70,7 +70,13 @@ build-caddy-with-spire:
 	@echo "$(CYAN)🔨 Building caddy-with-spire...$(RESET)"
 	@mkdir -p $(BIN_DIR)
 	go build -o $(BIN_DIR)/caddy-with-spire cmd/caddy-with-spire/main.go
-	@echo "$(GREEN)✅ caddy-with-spire built: $(BIN_DIR)/caddy-with-spire$(RESET)"
+
+# Build SPIRE file writer utility for Layer 4 integration
+build-caddy-spire-file-writer:
+	@echo "$(CYAN)🔨 Building caddy-spire-file-writer...$(RESET)"
+	@mkdir -p $(BIN_DIR)
+	go build -o $(BIN_DIR)/caddy-spire-file-writer cmd/caddy-spire-file-writer/main.go
+	@echo "$(GREEN)✅ caddy-spire-file-writer built: $(BIN_DIR)/caddy-spire-file-writer$(RESET)"
 
 # Install binaries to $GOPATH/bin
 install: build

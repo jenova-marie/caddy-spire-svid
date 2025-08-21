@@ -7,6 +7,24 @@
     debug
     # Disable automatic HTTPS on 80/443
     auto_https off
+    
+    # Layer 4 app configuration with SPIRE file-based TLS
+    layer4 {
+        :9443 {
+            @tls tls
+            route @tls {
+                tls {
+                    cert /tmp/spire-certs/cert.pem
+                    key /tmp/spire-certs/key.pem
+                }
+                proxy localhost:8080
+            }
+            @http http
+            route @http {
+                proxy localhost:8080
+            }
+        }
+    }
 }
 
 # HTTPS site with SPIRE certificates - TEST PORTS
@@ -27,5 +45,8 @@ Test suite: Comprehensive integration testing"
 localhost:8080 {
     respond "🔥 Level 3 Test: HTTP Caddy working!
 Visit https://localhost:8443 for SPIRE-secured HTTPS ✨
+Visit localhost:9443 for Layer 4 TLS proxy ✨
 Test suite: Comprehensive integration testing"
 }
+
+

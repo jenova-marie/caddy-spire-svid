@@ -1,5 +1,6 @@
 # 🌸 Layer 4 (TCP/UDP) Proxy with SPIRE Integration
 # Demonstrates TCP proxying with SPIFFE certificate authentication
+# using integrated file-based certificate management
 
 {
     # Global options
@@ -7,32 +8,31 @@
     debug
     # Disable automatic HTTPS for HTTP servers
     auto_https off
-}
-
-# Layer 4 TCP proxy with SPIRE-secured TLS termination
-:1443 {
+    
+    # Layer 4 app configuration with SPIRE file-based TLS
     layer4 {
-        # Match TLS traffic
-        @tls tls
-        handle @tls {
-            # Terminate TLS with SPIRE certificates
-            tls {
-                get_certificate spire {
-                    socket_path /tmp/spire-agent/public/api.sock
-                    refresh_interval 30s
+        :1443 {
+            @tls tls
+            route @tls {
+                # Terminate TLS with SPIRE certificates (automatically written by HTTP app)
+                tls {
+                    cert /tmp/spire-certs/cert.pem
+                    key /tmp/spire-certs/key.pem
                 }
+                # Proxy to backend after TLS termination
+                proxy localhost:8080
             }
-            # Proxy to backend after TLS termination
-            proxy localhost:8080
-        }
-        
-        # Handle non-TLS traffic (optional)
-        handle {
-            # Direct proxy for non-TLS
-            proxy localhost:8080
+            
+            @http http
+            route @http {
+                # Direct proxy for non-TLS
+                proxy localhost:8080
+            }
         }
     }
 }
+
+
 
 # HTTP backend for demonstration
 localhost:8080 {
@@ -41,7 +41,7 @@ Connection type: {method} {uri}
 Headers: {header.*}"
 }
 
-# Standard HTTPS endpoint with SPIRE (for comparison)
+# Standard HTTPS with SPIRE (automatically writes certs for Layer 4 if env vars set)
 localhost:8443 {
     tls {
         get_certificate spire {
@@ -50,6 +50,7 @@ localhost:8443 {
         }
     }
     
-    respond "🌸 Standard HTTPS with SPIRE certificates!
-Visit :1443 for L4 proxy demonstration ✨"
+    respond "🌸 HTTPS Backend: SPIFFE-secured Caddy!
+Your connection is secured with SPIRE certificates ✨
+Layer 4 TLS proxy also available on :1443 (if SPIRE_CERT_FILE and SPIRE_KEY_FILE are set)"
 }
