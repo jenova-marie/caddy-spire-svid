@@ -8,6 +8,7 @@ import (
 	"crypto/tls"
 	"fmt"
 	"os"
+	"strconv"
 	"time"
 
 	caddy "github.com/caddyserver/caddy/v2"
@@ -31,8 +32,13 @@ type SpireManager struct {
 	SocketPath string `json:"socket_path,omitempty"`
 
 	// RefreshInterval controls how often to check for certificate updates.
-	// Defaults to 30 seconds.
+	// Defaults to 30 seconds. Mutually exclusive with RefreshAtPercent.
 	RefreshInterval caddy.Duration `json:"refresh_interval,omitempty"`
+
+	// RefreshAtPercent controls when to refresh certificates based on lifetime percentage.
+	// For example, 65 means refresh when certificate has reached 65% of its lifetime.
+	// Defaults to 65%. Mutually exclusive with RefreshInterval.
+	RefreshAtPercent int `json:"refresh_at_percent,omitempty"`
 
 	// Logger for this module
 	logger *zap.Logger
@@ -68,6 +74,7 @@ func (sm *SpireManager) Provision(ctx caddy.Context) error {
 	sm.logger.Info("🌸 Provisioning SPIRE certificate manager",
 		zap.String("socket_path", sm.SocketPath),
 		zap.Duration("refresh_interval", time.Duration(sm.RefreshInterval)),
+		zap.Int("refresh_at_percent", sm.RefreshAtPercent),
 		zap.String("cert_file_env", certFile),
 		zap.String("key_file_env", keyFile))
 
@@ -117,6 +124,16 @@ func (sm *SpireManager) UnmarshalCaddyfile(d *caddyfile.Dispenser) error {
 				}
 				sm.RefreshInterval = caddy.Duration(dur)
 
+			case "refresh_at_percent":
+				if !d.NextArg() {
+					return d.ArgErr()
+				}
+				var err error
+				sm.RefreshAtPercent, err = strconv.Atoi(d.Val())
+				if err != nil || sm.RefreshAtPercent < 1 || sm.RefreshAtPercent > 99 {
+					return d.Errf("refresh_at_percent must be between 1 and 99, got: %s", d.Val())
+				}
+
 			default:
 				return d.Errf("unknown subdirective: %s", d.Val())
 			}
@@ -137,10 +154,11 @@ func (sm *SpireManager) GetCertificate(ctx context.Context, hello *tls.ClientHel
 			zap.String("socket_path", sm.SocketPath))
 
 		config := spire.Config{
-			SocketPath:      sm.SocketPath,
-			RefreshInterval: time.Duration(sm.RefreshInterval),
-			CertFile:        os.Getenv("SPIRE_CERT_FILE"),
-			KeyFile:         os.Getenv("SPIRE_KEY_FILE"),
+			SocketPath:       sm.SocketPath,
+			RefreshInterval:  time.Duration(sm.RefreshInterval),
+			RefreshAtPercent: sm.RefreshAtPercent,
+			CertFile:         os.Getenv("SPIRE_CERT_FILE"),
+			KeyFile:          os.Getenv("SPIRE_KEY_FILE"),
 		}
 
 		client, err := spire.NewClient(config)

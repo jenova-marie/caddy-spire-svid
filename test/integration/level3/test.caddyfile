@@ -8,19 +8,17 @@
     # Disable automatic HTTPS on 80/443
     auto_https off
     
-    # Layer 4 app configuration with SPIRE file-based TLS
+    # Layer 4 app configuration - smart proxy to SPIRE backend
     layer4 {
         :9443 {
             @tls tls
             route @tls {
-                tls {
-                    cert /tmp/spire-certs/cert.pem
-                    key /tmp/spire-certs/key.pem
-                }
-                proxy localhost:8080
+                # Route TLS traffic to our SPIRE-secured HTTPS backend
+                proxy localhost:8443
             }
             @http http
             route @http {
+                # Route HTTP traffic to plain HTTP backend
                 proxy localhost:8080
             }
         }
