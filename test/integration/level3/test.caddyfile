@@ -1,5 +1,6 @@
 # 🌸 Level 3 Test Configuration
 # Test-specific Caddyfile for comprehensive integration testing
+# Layer 4 configuration will be added via JSON adaptation
 
 {
     # Global options
@@ -7,22 +8,6 @@
     debug
     # Disable automatic HTTPS on 80/443
     auto_https off
-    
-    # Layer 4 app configuration - smart proxy to SPIRE backend
-    layer4 {
-        :9443 {
-            @tls tls
-            route @tls {
-                # Route TLS traffic to our SPIRE-secured HTTPS backend
-                proxy localhost:8443
-            }
-            @http http
-            route @http {
-                # Route HTTP traffic to plain HTTP backend
-                proxy localhost:8080
-            }
-        }
-    }
 }
 
 # HTTPS site with SPIRE certificates - TEST PORTS

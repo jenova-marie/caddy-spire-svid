@@ -1,0 +1,161 @@
+{
+  "admin": {
+    "listen": "localhost:2020"
+  },
+  "logging": {
+    "logs": {
+      "default": {
+        "level": "DEBUG"
+      }
+    }
+  },
+  "apps": {
+    "http": {
+      "servers": {
+        "srv0": {
+          "listen": [
+            ":8080"
+          ],
+          "routes": [
+            {
+              "match": [
+                {
+                  "host": [
+                    "localhost"
+                  ]
+                }
+              ],
+              "handle": [
+                {
+                  "handler": "subroute",
+                  "routes": [
+                    {
+                      "handle": [
+                        {
+                          "body": "🔥 Level 3 Test: HTTP Caddy working!\nVisit https://localhost:8443 for SPIRE-secured HTTPS ✨\nVisit localhost:9443 for Layer 4 TLS proxy ✨\nTest suite: Comprehensive integration testing",
+                          "handler": "static_response"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ],
+              "terminal": true
+            }
+          ],
+          "tls_connection_policies": [
+            {}
+          ],
+          "automatic_https": {
+            "disable": true
+          }
+        },
+        "srv1": {
+          "listen": [
+            ":8443"
+          ],
+          "routes": [
+            {
+              "match": [
+                {
+                  "host": [
+                    "localhost"
+                  ]
+                }
+              ],
+              "handle": [
+                {
+                  "handler": "subroute",
+                  "routes": [
+                    {
+                      "handle": [
+                        {
+                          "body": "🔥 Level 3 Test: SPIFFE-secured Caddy!\nYour connection is secured with SPIRE certificates ✨\nTest suite: Comprehensive integration testing",
+                          "handler": "static_response"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ],
+              "terminal": true
+            }
+          ],
+          "tls_connection_policies": [
+            {}
+          ],
+          "automatic_https": {
+            "disable": true
+          }
+        }
+      }
+    },
+    "tls": {
+      "automation": {
+        "policies": [
+          {
+            "subjects": [
+              "localhost"
+            ],
+            "get_certificate": [
+              {
+                "refresh_interval": 30000000000,
+                "socket_path": "/tmp/spire-agent/public/api.sock",
+                "via": "spire"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "layer4": {
+      "servers": {
+        "spire_l4_proxy": {
+          "listen": [
+            ":9443"
+          ],
+          "routes": [
+            {
+              "match": [
+                {
+                  "tls": {}
+                }
+              ],
+              "handle": [
+                {
+                  "handler": "proxy",
+                  "upstreams": [
+                    {
+                      "dial": [
+                        "localhost:8443"
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "match": [
+                {
+                  "http": []
+                }
+              ],
+              "handle": [
+                {
+                  "handler": "proxy",
+                  "upstreams": [
+                    {
+                      "dial": [
+                        "localhost:8080"
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      }
+    }
+  }
+}
