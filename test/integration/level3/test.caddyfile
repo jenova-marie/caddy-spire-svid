@@ -1,0 +1,31 @@
+# 🌸 Level 3 Test Configuration
+# Test-specific Caddyfile for comprehensive integration testing
+
+{
+    # Global options
+    admin localhost:2019
+    debug
+    # Disable automatic HTTPS on 80/443
+    auto_https off
+}
+
+# HTTPS site with SPIRE certificates - TEST PORTS
+localhost:8443 {
+    tls {
+        get_certificate spire {
+            socket_path /tmp/spire-agent/public/api.sock
+            refresh_interval 30s
+        }
+    }
+    
+    respond "🔥 Level 3 Test: SPIFFE-secured Caddy!
+Your connection is secured with SPIRE certificates ✨
+Test suite: Comprehensive integration testing"
+}
+
+# Plain HTTP for testing - TEST PORTS
+localhost:8080 {
+    respond "🔥 Level 3 Test: HTTP Caddy working!
+Visit https://localhost:8443 for SPIRE-secured HTTPS ✨
+Test suite: Comprehensive integration testing"
+}

@@ -1,4 +1,4 @@
-# 🌸 Multi-stage Docker build for Custom Caddy with SPIRE Module
+# 🌸 Multi-stage Docker build for Custom Caddy with SPIRE + L4 Modules
 FROM --platform=$BUILDPLATFORM golang:1.24-alpine AS builder
 
 # Install build dependencies (cached layer)
@@ -22,9 +22,9 @@ COPY *.go ./
 ARG TARGETOS
 ARG TARGETARCH
 
-# Build the custom Caddy binary with SPIRE module and cleanup in same layer
+# Build the custom Caddy binary with SPIRE + L4 modules and cleanup in same layer
 RUN CGO_ENABLED=0 GOOS=$TARGETOS GOARCH=$TARGETARCH go build \
-    -ldflags="-w -s -X github.com/caddyserver/caddy/v2.CustomVersion=v0.0.3-docker" \
+    -ldflags="-w -s -X github.com/caddyserver/caddy/v2.CustomVersion=v0.0.4-spire-l4-docker" \
     -o caddy-with-spire \
     ./cmd/caddy-with-spire && \
     go clean -cache && \
@@ -56,7 +56,7 @@ RUN echo $'# Default SPIRE-enabled Caddyfile\n\
             refresh_interval 30s\n\
         }\n\
     }\n\
-    respond "🌸 Secured with SPIFFE! Custom Caddy with SPIRE module active ✨"\n\
+    respond "🌸 Secured with SPIFFE! Custom Caddy with SPIRE + L4 modules active ✨"\n\
 }' > /etc/caddy/Caddyfile
 
 # Expose HTTP and HTTPS ports

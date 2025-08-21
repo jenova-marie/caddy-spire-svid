@@ -8,6 +8,9 @@ import (
 	// Standard Caddy modules
 	_ "github.com/caddyserver/caddy/v2/modules/standard"
 
+	// Layer 4 (TCP/UDP) proxy module
+	_ "github.com/mholt/caddy-l4"
+
 	// Our SPIRE certificate issuer module
 	_ "github.com/jenova-marie/caddy-spire-svid/pkg/caddyspire"
 )

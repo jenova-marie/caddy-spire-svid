@@ -1,0 +1,55 @@
+# 🌸 Layer 4 (TCP/UDP) Proxy with SPIRE Integration
+# Demonstrates TCP proxying with SPIFFE certificate authentication
+
+{
+    # Global options
+    admin localhost:2019
+    debug
+    # Disable automatic HTTPS for HTTP servers
+    auto_https off
+}
+
+# Layer 4 TCP proxy with SPIRE-secured TLS termination
+:1443 {
+    layer4 {
+        # Match TLS traffic
+        @tls tls
+        handle @tls {
+            # Terminate TLS with SPIRE certificates
+            tls {
+                get_certificate spire {
+                    socket_path /tmp/spire-agent/public/api.sock
+                    refresh_interval 30s
+                }
+            }
+            # Proxy to backend after TLS termination
+            proxy localhost:8080
+        }
+        
+        # Handle non-TLS traffic (optional)
+        handle {
+            # Direct proxy for non-TLS
+            proxy localhost:8080
+        }
+    }
+}
+
+# HTTP backend for demonstration
+localhost:8080 {
+    respond "🌸 Backend server reached via L4 proxy with SPIFFE security! ✨
+Connection type: {method} {uri}
+Headers: {header.*}"
+}
+
+# Standard HTTPS endpoint with SPIRE (for comparison)
+localhost:8443 {
+    tls {
+        get_certificate spire {
+            socket_path /tmp/spire-agent/public/api.sock
+            refresh_interval 30s
+        }
+    }
+    
+    respond "🌸 Standard HTTPS with SPIRE certificates!
+Visit :1443 for L4 proxy demonstration ✨"
+}
