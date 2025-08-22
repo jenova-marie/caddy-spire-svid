@@ -63,7 +63,8 @@ func (sm *SpireManager) Provision(ctx caddy.Context) error {
 	if sm.SocketPath == "" {
 		sm.SocketPath = spire.DefaultSpireSocketPath
 	}
-	if sm.RefreshInterval == 0 {
+	// Only set default RefreshInterval if neither interval nor percentage is specified
+	if sm.RefreshInterval == 0 && sm.RefreshAtPercent == 0 {
 		sm.RefreshInterval = caddy.Duration(30 * time.Second)
 	}
 

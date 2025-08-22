@@ -1,5 +1,46 @@
 # Active Context
 
+## Code Changes (2025-08-22 03:06:40)
+
+### Added Files
+- .cursor/mcp.json
+- .github/workflows/ci.yml
+- .github/workflows/release.yml
+- .golangci.yml
+- cmd/caddy-spire-file-writer/main.go
+- cmd/caddy-spire-svid/main.go
+- cmd/caddy-with-spire/main.go
+- coverage.html
+- docker-compose.level4.yml
+- docker-compose.level5.yml
+- docker-compose.test0.yml
+- entries.json
+- examples/04-features.json
+- examples/basic-integration.go
+- examples/docker-compose.yml
+- examples/html/backend/index.html
+- examples/html/index.html
+- orchestration/docker-compose.full-orchestrationx.yml
+- orchestration/docker-compose.orchestration.yml
+- orchestration/docker-compose.yml
+- orchestration/main.go
+- orchestration/socket-test.go
+- pkg/caddyspire/module.go
+- pkg/spire/client.go
+- pkg/spire/client_integration_test.go
+- pkg/spire/client_real_test.go
+- pkg/spire/client_scenarios_test.go
+- pkg/spire/client_test.go
+- test/docker/test-caddy-config.json
+- test/integration/level2/main.go
+- test/integration/level3/hybrid.json
+- test/integration/level3/main.go
+- test/integration/level4/main.go
+- test/integration/level5/main.go
+- test/mocks/spire_mock_client.go
+- test/mocks/spire_mock_client_test.go
+
+
 ## Code Changes (2025-08-20 03:18:12)
 
 ### Added Files
