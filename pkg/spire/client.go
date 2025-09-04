@@ -311,6 +311,90 @@ func (c *Client) GetCurrentSVID() (*x509svid.SVID, error) {
 	return c.source.GetX509SVID()
 }
 
+// GetAllSVIDs returns all available SVIDs from the source
+// This is used for multi-attestation scenarios where multiple SPIFFE identities exist
+func (c *Client) GetAllSVIDs() ([]*x509svid.SVID, error) {
+	// Use the workload API client directly to get all SVIDs
+	ctx, cancel := context.WithTimeout(c.ctx, c.refreshTimeout)
+	defer cancel()
+
+	client, err := workloadapi.New(ctx, workloadapi.WithAddr("unix:"+c.socketPath))
+	if err != nil {
+		return nil, fmt.Errorf("failed to create workload API client for SVIDs: %w", err)
+	}
+	defer client.Close()
+
+	// Fetch all X509 SVIDs
+	svidResponse, err := client.FetchX509SVIDs(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("failed to fetch X509 SVIDs: %w", err)
+	}
+
+	// Convert the response to a slice of SVIDs
+	svids := append([]*x509svid.SVID(nil), svidResponse...)
+
+	if len(svids) == 0 {
+		return nil, fmt.Errorf("no SVIDs available")
+	}
+
+	return svids, nil
+}
+
+// GetSVIDForServerName selects the appropriate SVID based on server name (DNS name)
+// This enables multi-attestation scenarios where different sites use different SPIFFE identities
+func (c *Client) GetSVIDForServerName(serverName string) (*x509svid.SVID, error) {
+	if serverName == "" {
+		// If no server name specified, return the default SVID
+		return c.GetCurrentSVID()
+	}
+
+	// Get all available SVIDs
+	svids, err := c.GetAllSVIDs()
+	if err != nil {
+		return nil, fmt.Errorf("failed to get available SVIDs: %w", err)
+	}
+
+	log.Printf("🔍 Selecting SVID for server name: %s from %d available SVIDs", serverName, len(svids))
+
+	// Find SVID that matches the server name in DNS names or CN
+	for _, svid := range svids {
+		if len(svid.Certificates) == 0 {
+			continue
+		}
+
+		cert := svid.Certificates[0]
+
+		// Check DNS names in the certificate
+		for _, dnsName := range cert.DNSNames {
+			if dnsName == serverName {
+				log.Printf("✅ Found matching SVID for %s: SPIFFE ID %s", serverName, svid.ID)
+				return svid, nil
+			}
+		}
+
+		// Also check Common Name as fallback
+		if cert.Subject.CommonName == serverName {
+			log.Printf("✅ Found matching SVID for %s via CN: SPIFFE ID %s", serverName, svid.ID)
+			return svid, nil
+		}
+
+		// Log available DNS names for debugging
+		log.Printf("   SVID %s has DNS names: %v", svid.ID, cert.DNSNames)
+	}
+
+	// If no exact match found, log available options and return the first SVID as fallback
+	log.Printf("⚠️ No exact SVID match found for server name: %s", serverName)
+	log.Printf("   Available SVIDs:")
+	for _, svid := range svids {
+		if len(svid.Certificates) > 0 {
+			log.Printf("     - %s (DNS: %v)", svid.ID, svid.Certificates[0].DNSNames)
+		}
+	}
+
+	log.Printf("   Using first available SVID as fallback: %s", svids[0].ID)
+	return svids[0], nil
+}
+
 // GetTrustBundle returns the current trust bundle (CA certificates)
 func (c *Client) GetTrustBundle() ([]*x509.Certificate, error) {
 	// Use the underlying client context to get bundles
@@ -351,6 +435,24 @@ func (c *Client) GetCertificateWithChain() (*tls.Certificate, error) {
 		return nil, fmt.Errorf("failed to get SVID: %w", err)
 	}
 
+	return c.buildCertificateChain(svid)
+}
+
+// GetCertificateWithChainForServerName returns a TLS certificate with the full certificate chain
+// for a specific server name, enabling multi-attestation scenarios
+func (c *Client) GetCertificateWithChainForServerName(serverName string) (*tls.Certificate, error) {
+	// Get the appropriate SVID for this server name
+	svid, err := c.GetSVIDForServerName(serverName)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get SVID for server name %s: %w", serverName, err)
+	}
+
+	return c.buildCertificateChain(svid)
+}
+
+// buildCertificateChain builds a TLS certificate chain from an SVID and trust bundle
+// This is a helper method used by both GetCertificateWithChain methods
+func (c *Client) buildCertificateChain(svid *x509svid.SVID) (*tls.Certificate, error) {
 	if len(svid.Certificates) == 0 {
 		return nil, fmt.Errorf("SVID contains no certificates")
 	}

@@ -172,18 +172,22 @@ func (sm *SpireManager) GetCertificate(ctx context.Context, hello *tls.ClientHel
 		sm.logger.Info("🎉 Successfully connected to SPIRE agent")
 	}
 
-	// Get certificate with full chain (SVID + intermediates + CA)
-	cert, err := sm.client.GetCertificateWithChain()
+	// Get certificate with full chain for the specific server name (multi-attestation support)
+	// This enables automatic SVID selection based on DNS names in SPIRE entries
+	cert, err := sm.client.GetCertificateWithChainForServerName(hello.ServerName)
 	if err != nil {
-		sm.logger.Error("Failed to get certificate chain from SPIRE", zap.Error(err))
-		return nil, fmt.Errorf("failed to get certificate chain from SPIRE: %w", err)
+		sm.logger.Error("Failed to get certificate chain from SPIRE for server name",
+			zap.String("server_name", hello.ServerName),
+			zap.Error(err))
+		return nil, fmt.Errorf("failed to get certificate chain from SPIRE for %s: %w", hello.ServerName, err)
 	}
 
 	// Log certificate chain information for debugging
-	sm.logger.Debug("🎉 Successfully got certificate chain via SPIRE",
+	sm.logger.Debug("🎉 Successfully got certificate chain via SPIRE for server name",
 		zap.String("server_name", hello.ServerName),
 		zap.Int("chain_length", len(cert.Certificate)),
-		zap.String("leaf_subject", cert.Leaf.Subject.String()))
+		zap.String("leaf_subject", cert.Leaf.Subject.String()),
+		zap.Strings("leaf_dns_names", cert.Leaf.DNSNames))
 
 	return cert, nil
 }
