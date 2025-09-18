@@ -40,6 +40,12 @@ type SpireManager struct {
 	// Defaults to 65%. Mutually exclusive with RefreshInterval.
 	RefreshAtPercent int `json:"refresh_at_percent,omitempty"`
 
+	// SpiffeID explicitly specifies which SPIFFE ID to use for this server.
+	// When set, only the SVID matching this SPIFFE ID will be used.
+	// When empty, the system automatically selects based on DNS names.
+	// Example: "spiffe://recoverysky.org/prod/metis/caddy-loki"
+	SpiffeID string `json:"spiffe_id,omitempty"`
+
 	// Logger for this module
 	logger *zap.Logger
 
@@ -76,6 +82,7 @@ func (sm *SpireManager) Provision(ctx caddy.Context) error {
 		zap.String("socket_path", sm.SocketPath),
 		zap.Duration("refresh_interval", time.Duration(sm.RefreshInterval)),
 		zap.Int("refresh_at_percent", sm.RefreshAtPercent),
+		zap.String("spiffe_id", sm.SpiffeID),
 		zap.String("cert_file_env", certFile),
 		zap.String("key_file_env", keyFile))
 
@@ -135,6 +142,12 @@ func (sm *SpireManager) UnmarshalCaddyfile(d *caddyfile.Dispenser) error {
 					return d.Errf("refresh_at_percent must be between 1 and 99, got: %s", d.Val())
 				}
 
+			case "spiffe_id":
+				if !d.NextArg() {
+					return d.ArgErr()
+				}
+				sm.SpiffeID = d.Val()
+
 			default:
 				return d.Errf("unknown subdirective: %s", d.Val())
 			}
@@ -147,7 +160,8 @@ func (sm *SpireManager) UnmarshalCaddyfile(d *caddyfile.Dispenser) error {
 // This function is called by Caddy when it needs a certificate.
 func (sm *SpireManager) GetCertificate(ctx context.Context, hello *tls.ClientHelloInfo) (*tls.Certificate, error) {
 	sm.logger.Debug("🔐 Getting certificate via SPIRE",
-		zap.String("server_name", hello.ServerName))
+		zap.String("server_name", hello.ServerName),
+		zap.String("configured_spiffe_id", sm.SpiffeID))
 
 	// Lazy initialization: create SPIRE client on first certificate request
 	if sm.client == nil {
@@ -172,19 +186,36 @@ func (sm *SpireManager) GetCertificate(ctx context.Context, hello *tls.ClientHel
 		sm.logger.Info("🎉 Successfully connected to SPIRE agent")
 	}
 
-	// Get certificate with full chain for the specific server name (multi-attestation support)
-	// This enables automatic SVID selection based on DNS names in SPIRE entries
-	cert, err := sm.client.GetCertificateWithChainForServerName(hello.ServerName)
-	if err != nil {
-		sm.logger.Error("Failed to get certificate chain from SPIRE for server name",
-			zap.String("server_name", hello.ServerName),
-			zap.Error(err))
-		return nil, fmt.Errorf("failed to get certificate chain from SPIRE for %s: %w", hello.ServerName, err)
+	var cert *tls.Certificate
+	var err error
+
+	// If a specific SPIFFE ID is configured, use it exclusively
+	if sm.SpiffeID != "" {
+		sm.logger.Debug("Using explicitly configured SPIFFE ID",
+			zap.String("spiffe_id", sm.SpiffeID))
+		cert, err = sm.client.GetCertificateWithChainByID(sm.SpiffeID)
+		if err != nil {
+			sm.logger.Error("Failed to get certificate chain from SPIRE for configured SPIFFE ID",
+				zap.String("spiffe_id", sm.SpiffeID),
+				zap.Error(err))
+			return nil, fmt.Errorf("failed to get certificate chain from SPIRE for SPIFFE ID %s: %w", sm.SpiffeID, err)
+		}
+	} else {
+		// Fall back to automatic selection based on server name (multi-attestation support)
+		// This enables automatic SVID selection based on DNS names in SPIRE entries
+		cert, err = sm.client.GetCertificateWithChainForServerName(hello.ServerName)
+		if err != nil {
+			sm.logger.Error("Failed to get certificate chain from SPIRE for server name",
+				zap.String("server_name", hello.ServerName),
+				zap.Error(err))
+			return nil, fmt.Errorf("failed to get certificate chain from SPIRE for %s: %w", hello.ServerName, err)
+		}
 	}
 
 	// Log certificate chain information for debugging
-	sm.logger.Debug("🎉 Successfully got certificate chain via SPIRE for server name",
+	sm.logger.Debug("🎉 Successfully got certificate chain via SPIRE",
 		zap.String("server_name", hello.ServerName),
+		zap.String("used_spiffe_id", sm.SpiffeID),
 		zap.Int("chain_length", len(cert.Certificate)),
 		zap.String("leaf_subject", cert.Leaf.Subject.String()),
 		zap.Strings("leaf_dns_names", cert.Leaf.DNSNames))

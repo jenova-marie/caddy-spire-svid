@@ -340,6 +340,42 @@ func (c *Client) GetAllSVIDs() ([]*x509svid.SVID, error) {
 	return svids, nil
 }
 
+// GetSVIDByID returns a specific SVID by its SPIFFE ID
+// This enables explicit SPIFFE ID selection for enhanced security and control
+func (c *Client) GetSVIDByID(spiffeID string) (*x509svid.SVID, error) {
+	if spiffeID == "" {
+		return nil, fmt.Errorf("SPIFFE ID cannot be empty")
+	}
+
+	// Get all available SVIDs
+	svids, err := c.GetAllSVIDs()
+	if err != nil {
+		return nil, fmt.Errorf("failed to get available SVIDs: %w", err)
+	}
+
+	log.Printf("🔍 Looking for specific SPIFFE ID: %s from %d available SVIDs", spiffeID, len(svids))
+
+	// Find SVID that matches the requested SPIFFE ID
+	for _, svid := range svids {
+		if svid.ID.String() == spiffeID {
+			log.Printf("✅ Found matching SVID: %s", spiffeID)
+			if len(svid.Certificates) > 0 {
+				log.Printf("   DNS names: %v", svid.Certificates[0].DNSNames)
+			}
+			return svid, nil
+		}
+	}
+
+	// If not found, log available SVIDs for debugging
+	log.Printf("❌ SPIFFE ID not found: %s", spiffeID)
+	log.Printf("   Available SVIDs:")
+	for _, svid := range svids {
+		log.Printf("     - %s", svid.ID)
+	}
+
+	return nil, fmt.Errorf("SVID with SPIFFE ID %s not found", spiffeID)
+}
+
 // GetSVIDForServerName selects the appropriate SVID based on server name (DNS name)
 // This enables multi-attestation scenarios where different sites use different SPIFFE identities
 func (c *Client) GetSVIDForServerName(serverName string) (*x509svid.SVID, error) {
@@ -445,6 +481,18 @@ func (c *Client) GetCertificateWithChainForServerName(serverName string) (*tls.C
 	svid, err := c.GetSVIDForServerName(serverName)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get SVID for server name %s: %w", serverName, err)
+	}
+
+	return c.buildCertificateChain(svid)
+}
+
+// GetCertificateWithChainByID returns a TLS certificate with the full certificate chain
+// for a specific SPIFFE ID, enabling explicit identity selection
+func (c *Client) GetCertificateWithChainByID(spiffeID string) (*tls.Certificate, error) {
+	// Get the SVID by its SPIFFE ID
+	svid, err := c.GetSVIDByID(spiffeID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get SVID for SPIFFE ID %s: %w", spiffeID, err)
 	}
 
 	return c.buildCertificateChain(svid)
