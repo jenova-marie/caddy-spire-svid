@@ -1,0 +1,103 @@
+{
+  "apps": {
+    "http": {
+      "servers": {
+        "loki": {
+          "listen": [":3100"],
+          "routes": [{
+            "handle": [{
+              "handler": "file_server",
+              "root": "/container/html"
+            }]
+          }],
+          "tls_connection_policies": [{
+            "certificate_selection": {
+              "any_tag": ["spire"]
+            }
+          }],
+          "logs": {
+            "logger_names": {
+              "loki.rso": "loki"
+            }
+          }
+        },
+        "vault": {
+          "listen": [":8200"],
+          "routes": [{
+            "handle": [{
+              "handler": "reverse_proxy",
+              "upstreams": [{
+                "dial": "vault-backend:8200"
+              }]
+            }]
+          }],
+          "tls_connection_policies": [{
+            "certificate_selection": {
+              "any_tag": ["spire"]
+            }
+          }],
+          "logs": {
+            "logger_names": {
+              "vault.rso": "vault"
+            }
+          }
+        }
+      }
+    },
+    "tls": {
+      "certificates": {
+        "automate": ["loki.rso", "vault.rso", "neo4j.rso", "oidc.rso"]
+      },
+      "automation": {
+        "policies": [{
+          "subjects": ["loki.rso"],
+          "issuers": [{
+            "module": "spire",
+            "socket_path": "/var/lib/spire/agent/socket/api.sock",
+            "spiffe_id": "spiffe://recoverysky.org/prod/metis/caddy-loki",
+            "refresh_at_percent": 65
+          }]
+        }, {
+          "subjects": ["vault.rso"],
+          "issuers": [{
+            "module": "spire",
+            "socket_path": "/var/lib/spire/agent/socket/api.sock",
+            "spiffe_id": "spiffe://recoverysky.org/prod/mnemosyne/caddy-vault",
+            "refresh_at_percent": 65
+          }]
+        }, {
+          "subjects": ["neo4j.rso"],
+          "issuers": [{
+            "module": "spire",
+            "socket_path": "/var/lib/spire/agent/socket/api.sock",
+            "spiffe_id": "spiffe://recoverysky.org/prod/mnemosyne/caddy-neo4j",
+            "refresh_interval": 30000000000
+          }]
+        }, {
+          "subjects": ["oidc.rso"],
+          "issuers": [{
+            "module": "spire",
+            "socket_path": "/var/lib/spire/agent/socket/api.sock",
+            "refresh_at_percent": 70
+          }]
+        }]
+      }
+    },
+    "logging": {
+      "logs": {
+        "loki": {
+          "writer": {
+            "output": "file",
+            "filename": "/var/log/caddy/loki.log"
+          }
+        },
+        "vault": {
+          "writer": {
+            "output": "file",
+            "filename": "/var/log/caddy/vault.log"
+          }
+        }
+      }
+    }
+  }
+}

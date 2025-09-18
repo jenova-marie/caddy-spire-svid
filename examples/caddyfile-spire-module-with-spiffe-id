@@ -1,0 +1,70 @@
+# Example Caddyfile using SPIRE module with explicit SPIFFE ID configuration
+# This demonstrates the new spiffe_id configuration option
+
+# Loki Service with explicit SPIFFE ID
+loki.rso:3100 {
+    tls {
+        get_certificate spire {
+            socket_path /var/lib/spire/agent/socket/api.sock
+            spiffe_id spiffe://recoverysky.org/prod/metis/caddy-loki
+            refresh_at_percent 65
+        }
+    }
+    root * /container/html
+    file_server
+    log {
+        output file /var/log/caddy/loki.log
+    }
+}
+
+# Vault Service with explicit SPIFFE ID
+vault.rso:8200 {
+    tls {
+        get_certificate spire {
+            socket_path /var/lib/spire/agent/socket/api.sock
+            spiffe_id spiffe://recoverysky.org/prod/mnemosyne/caddy-vault
+            refresh_at_percent 65
+        }
+    }
+    reverse_proxy vault-backend:8200
+    log {
+        output file /var/log/caddy/vault.log
+    }
+}
+
+# Neo4j Service with explicit SPIFFE ID
+neo4j.rso:7687 {
+    tls {
+        get_certificate spire {
+            socket_path /var/lib/spire/agent/socket/api.sock
+            spiffe_id spiffe://recoverysky.org/prod/mnemosyne/caddy-neo4j
+            refresh_interval 30s
+        }
+    }
+    reverse_proxy neo4j-backend:7687
+}
+
+# OIDC Service with automatic SPIFFE ID selection (no spiffe_id specified)
+# This will automatically select based on DNS name matching
+oidc.rso:8080 {
+    tls {
+        get_certificate spire {
+            socket_path /var/lib/spire/agent/socket/api.sock
+            # No spiffe_id specified - will auto-select based on DNS name
+            refresh_at_percent 70
+        }
+    }
+    reverse_proxy oidc-backend:8080
+}
+
+# Global options for all sites
+{
+    # Enable debug logging
+    debug
+    
+    # Admin API endpoint
+    admin localhost:2019
+    
+    # Default TLS settings
+    default_sni loki.rso
+}

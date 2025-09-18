@@ -13,14 +13,21 @@ Our testing approach follows a **progressive validation strategy**, where each l
 ```
 test/
 ├── README.md                     # This file
-├── integration/                  # Level 2-5 integration tests (each in own subdir)
-│   ├── level2/main.go           # Bare metal client.go validation
-│   ├── level3/main.go           # Caddy + SPIRE integration  
-│   ├── level4/main.go           # Container SPIRE socket diagnostic
-│   └── level5/main.go           # Containerized comprehensive testing
-└── mocks/                       # Mock implementations
-    ├── spire_mock_client.go     # SPIRE client mock
-    └── spire_mock_client_test.go # Mock validation tests
+├── unit/                        # Pure unit tests (no external dependencies)
+│   ├── config/                  # Configuration-related unit tests
+│   │   └── refresh_config_test.go # Refresh mechanism configuration tests
+│   └── README.md                # Unit test documentation
+├── integration/                 # Level 2-5 integration tests (each in own subdir)
+│   ├── level2/main.go          # Bare metal client.go validation
+│   ├── level3/main.go          # Caddy + SPIRE integration  
+│   ├── level4/main.go          # Container SPIRE socket diagnostic
+│   └── level5/main.go          # Containerized comprehensive testing
+├── mocks/                       # Mock implementations
+│   ├── spire_mock_client.go     # SPIRE client mock
+│   └── spire_mock_client_test.go # Mock validation tests
+└── docker/                      # Docker-specific test configurations
+    ├── test-caddy-config.json   # Test Caddy configuration
+    └── test.caddyfile           # Test Caddyfile
 
 pkg/spire/                       # Level 1 Go unit tests (in main package)
 ├── client_test.go               # Mock framework validation
@@ -31,6 +38,25 @@ pkg/spire/                       # Level 1 Go unit tests (in main package)
 ```
 
 ## 🚀 Test Levels
+
+### **Unit Tests** 🧪
+**Purpose**: Pure unit tests for configuration and logic validation  
+**Dependencies**: None  
+**Location**: `test/unit/`  
+
+**What it tests:**
+- ✅ Configuration validation and defaults
+- ✅ Mutual exclusivity rules
+- ✅ Value calculations and logic
+- ✅ Edge cases and boundaries
+- ✅ Pure functions without external dependencies
+
+**Run with:**
+```bash
+go test ./test/unit/...
+```
+
+---
 
 ### **Level 1: Mock-Based Testing** 🔬
 **Purpose**: Fast, isolated unit tests using mocks  

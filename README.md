@@ -198,6 +198,7 @@ This project offers multiple ways to integrate SPIFFE/SPIRE with Caddy, each wit
 
 **Configuration Example**:
 ```caddyfile
+# Automatic SPIFFE ID selection based on DNS name
 example.com {
     tls {
         issuer spire {
@@ -207,7 +208,25 @@ example.com {
     }
     respond "Secured with SPIFFE! 🌸"
 }
+
+# Explicit SPIFFE ID selection (NEW!)
+loki.rso {
+    tls {
+        issuer spire {
+            socket_path /tmp/spire-agent/public/api.sock
+            spiffe_id spiffe://recoverysky.org/prod/metis/caddy-loki
+            refresh_at_percent 65
+        }
+    }
+    respond "Using explicit SPIFFE ID! 🔒"
+}
 ```
+
+**Module Configuration Options**:
+- `socket_path`: Path to SPIRE agent socket (default: `/tmp/spire-agent/public/api.sock`)
+- `refresh_interval`: Fixed interval for certificate refresh (e.g., `30s`)
+- `refresh_at_percent`: Refresh when certificate reaches X% of lifetime (e.g., `65`)
+- `spiffe_id`: ✨ **NEW!** Explicitly specify which SPIFFE ID to use (e.g., `spiffe://domain/workload`)
 
 ### 🎯 **Method 2: External Certificate Provider**
 
