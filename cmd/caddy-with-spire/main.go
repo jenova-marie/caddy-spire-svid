@@ -8,6 +8,9 @@ import (
 	// Standard Caddy modules
 	_ "github.com/caddyserver/caddy/v2/modules/standard"
 
+	// Brotli compression encoder (pure Go implementation)
+	_ "github.com/ueffel/caddy-brotli"
+
 	// Layer 4 (TCP/UDP) proxy module
 	_ "github.com/mholt/caddy-l4"
 
