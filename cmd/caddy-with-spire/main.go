@@ -11,6 +11,11 @@ import (
 	// Brotli compression encoder (pure Go implementation)
 	_ "github.com/ueffel/caddy-brotli"
 
+	// CrowdSec bouncer for blocking malicious traffic
+	_ "github.com/hslatman/caddy-crowdsec-bouncer/appsec"
+	_ "github.com/hslatman/caddy-crowdsec-bouncer/http"
+	_ "github.com/hslatman/caddy-crowdsec-bouncer/layer4"
+
 	// Layer 4 (TCP/UDP) proxy module
 	_ "github.com/mholt/caddy-l4"
 
