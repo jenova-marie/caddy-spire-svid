@@ -46,73 +46,38 @@ jobs:
             echo "CHANGELOG=Initial release 🎉" >> $GITHUB_OUTPUT
           fi
 
-      - name: 🎊 Create Release
-        env:
-          TAG: ${{ github.ref_name }}
-          REPO: ${{ github.repository }}
-          TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          # Build release body
-          BODY="$(cat <<BODYEOF
-          🌸 **Caddy SPIRE Client Release ${TAG}**
+      - name: 🎊 Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          body: |
+            🌸 **Caddy SPIRE Client Release ${{ github.ref_name }}**
 
-          ${{ steps.changelog.outputs.CHANGELOG }}
+            ${{ steps.changelog.outputs.CHANGELOG }}
 
-          ## 📦 Installation
+            ## 📦 Installation
 
-          Download the appropriate binary for your platform from the assets below.
+            Download the appropriate binary for your platform from the assets below.
 
-          ### Linux/macOS
-          \`\`\`bash
-          # Download and install (replace with your platform)
-          curl -L ${GITHUB_SERVER_URL}/${REPO}/releases/download/${TAG}/caddy-spire-svid-linux-amd64.tar.gz | tar xz
-          sudo mv caddy-spire-svid /usr/local/bin/
-          \`\`\`
+            ### Linux/macOS
+            ```bash
+            # Download and install (replace with your platform)
+            curl -L https://github.com/${{ github.repository }}/releases/download/${{ github.ref_name }}/caddy-spire-svid-linux-amd64.tar.gz | tar xz
+            sudo mv caddy-spire-svid /usr/local/bin/
+            ```
 
-          ### Windows
-          Download the \`.zip\` file and extract to your desired location.
+            ### Windows
+            Download the `.zip` file and extract to your desired location.
 
-          ## 🔧 Usage
-          \`\`\`bash
-          caddy-spire-svid -help
-          \`\`\`
+            ## 🔧 Usage
+            ```bash
+            caddy-spire-svid -help
+            ```
 
-          💖 Made with love by Jenova
-          BODYEOF
-          )"
-
-          # Create the release via API
-          RELEASE_ID=$(curl -sf \
-            -X POST \
-            -H "Authorization: token ${TOKEN}" \
-            -H "Content-Type: application/json" \
-            -d "$(jq -n --arg tag "${TAG}" --arg body "${BODY}" '{
-              tag_name: $tag,
-              name: $tag,
-              body: $body,
-              draft: false,
-              prerelease: false
-            }')" \
-            "${GITHUB_SERVER_URL}/api/v1/repos/${REPO}/releases" \
-            | jq -r '.id')
-
-          echo "Created release ID: ${RELEASE_ID}"
-
-          # Upload release assets
-          for asset in dist/archives/*; do
-            [ -f "$asset" ] || continue
-            FILENAME=$(basename "$asset")
-            echo "Uploading ${FILENAME}..."
-            curl -sf \
-              -X POST \
-              -H "Authorization: token ${TOKEN}" \
-              -H "Content-Type: application/octet-stream" \
-              --data-binary "@${asset}" \
-              "${GITHUB_SERVER_URL}/api/v1/repos/${REPO}/releases/${RELEASE_ID}/assets?name=${FILENAME}"
-            echo "✅ Uploaded ${FILENAME}"
-          done
-
-          echo "🎉 Release ${TAG} published with all assets"
+            💖 Made with love by Jenova
+          files: |
+            dist/archives/*
+          draft: false
+          prerelease: false
 
   docker-caddy:
     name: 🐳 Caddy + SPIRE Docker Release
