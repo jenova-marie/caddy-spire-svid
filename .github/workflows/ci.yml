@@ -185,13 +185,10 @@ jobs:
       - name: ✅ Validate Docker Compose files
         run: |
           echo "🌸 Validating Docker Compose files..."
-          # Install docker-compose
-          sudo curl -L "https://github.com/docker/compose/releases/download/v2.24.1/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-          sudo chmod +x /usr/local/bin/docker-compose
           for file in *.yml docker-compose*.yml examples/*.yml; do
             if [ -f "$file" ]; then
               echo "Checking $file..."
-              docker-compose -f "$file" config >/dev/null
+              docker compose -f "$file" config >/dev/null
               echo "✅ $file is valid"
             fi
           done
