@@ -2,51 +2,51 @@ name: 🚀 CI Pipeline
 
 on:
   push:
-    branches: [ root, main, dev, test, release ]
+    branches: [root, main, dev, test, release]
   pull_request:
-    branches: [ root, main, dev, test, release ]
+    branches: [root, main, dev, test, release]
 
 env:
-  GO_VERSION: '1.24.2'
+  GO_VERSION: "1.25.0"
 
 jobs:
   test:
     name: 🧪 Test Suite
-    # Note: Windows builds disabled due to toolchain conflicts
+    # Note: Windows builds disabled due to toolchain conflicts (and Windows sucks)
     strategy:
       matrix:
         os: [ubuntu-latest, macos-latest]
-        go-version: ['1.24.2']
+        go-version: ["1.25.0"]
     runs-on: ${{ matrix.os }}
 
     steps:
-    - name: 📥 Checkout code
-      uses: actions/checkout@v4
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
 
-    - name: 🔧 Set up Go ${{ matrix.go-version }}
-      uses: actions/setup-go@v4
-      with:
-        go-version: ${{ matrix.go-version }}
-        cache: true
+      - name: 🔧 Set up Go ${{ matrix.go-version }}
+        uses: actions/setup-go@v4
+        with:
+          go-version: ${{ matrix.go-version }}
+          cache: true
 
-    - name: 📥 Download dependencies
-      run: go mod download
+      - name: 📥 Download dependencies
+        run: go mod download
 
-    - name: 🔍 Verify dependencies
-      run: go mod verify
+      - name: 🔍 Verify dependencies
+        run: go mod verify
 
-    - name: 🧪 Run tests
-      run: make test-level1
+      - name: 🧪 Run tests
+        run: make test-level1
 
-    - name: 📊 Upload coverage to Codecov
-      if: matrix.os == 'ubuntu-latest'
-      uses: codecov/codecov-action@v4
-      with:
-        file: ./coverage.out
-        flags: unittests
-        name: codecov-umbrella
-        token: ${{ secrets.CODECOV_TOKEN }}
-        fail_ci_if_error: false
+      - name: 📊 Upload coverage to Codecov
+        if: matrix.os == 'ubuntu-latest'
+        uses: codecov/codecov-action@v4
+        with:
+          file: ./coverage.out
+          flags: unittests
+          name: codecov-umbrella
+          token: ${{ secrets.CODECOV_TOKEN }}
+          fail_ci_if_error: false
 
   build:
     name: 🏗️ Build Test
@@ -54,56 +54,56 @@ jobs:
     needs: test
 
     steps:
-    - name: 📥 Checkout code
-      uses: actions/checkout@v4
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
 
-    - name: 🔧 Set up Go
-      uses: actions/setup-go@v4
-      with:
-        go-version: ${{ env.GO_VERSION }}
-        cache: true
+      - name: 🔧 Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: ${{ env.GO_VERSION }}
+          cache: true
 
-    - name: 🔨 Test basic build
-      run: |
-        # Build main project
-        make build
-        # Build all test binaries to ensure they compile
-        make build-tests
-        # Test that all packages compile properly
-        go build ./...
+      - name: 🔨 Test basic build
+        run: |
+          # Build main project
+          make build
+          # Build all test binaries to ensure they compile
+          make build-tests
+          # Test that all packages compile properly
+          go build ./...
 
-    - name: 🧪 Quick smoke test
-      run: |
-        ./bin/caddy-spire-svid -version
-        echo "✅ Build and smoke test completed"
+      - name: 🧪 Quick smoke test
+        run: |
+          ./bin/caddy-spire-svid -version
+          echo "✅ Build and smoke test completed"
 
   lint:
     name: 🔍 Code Quality
     runs-on: ubuntu-latest
 
     steps:
-    - name: 📥 Checkout code
-      uses: actions/checkout@v4
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
 
-    - name: 🔧 Set up Go
-      uses: actions/setup-go@v4
-      with:
-        go-version: ${{ env.GO_VERSION }}
-        cache: true
+      - name: 🔧 Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: ${{ env.GO_VERSION }}
+          cache: true
 
-    # - name: 🔍 Run golangci-lint
-    #   uses: golangci/golangci-lint-action@v3
-    #   with:
-    #     version: latest
-    #     args: --timeout=5m
+      # - name: 🔍 Run golangci-lint
+      #   uses: golangci/golangci-lint-action@v3
+      #   with:
+      #     version: latest
+      #     args: --timeout=5m
 
-    - name: 🔧 Format check
-      run: |
-        gofmt -l . | tee /tmp/gofmt.out
-        test ! -s /tmp/gofmt.out
+      - name: 🔧 Format check
+        run: |
+          gofmt -l . | tee /tmp/gofmt.out
+          test ! -s /tmp/gofmt.out
 
-    - name: 🧹 Vet check
-      run: go vet ./...
+      - name: 🧹 Vet check
+        run: go vet ./...
 
   docker-build:
     name: 🐳 Docker Build Test
@@ -111,99 +111,99 @@ jobs:
     needs: [test, build]
 
     steps:
-    - name: 📥 Checkout code
-      uses: actions/checkout@v4
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
 
-    - name: 🔧 Set up QEMU
-      uses: docker/setup-qemu-action@v3
-      with:
-        platforms: linux/arm64
+      - name: 🔧 Set up QEMU
+        uses: docker/setup-qemu-action@v3
+        with:
+          platforms: linux/arm64
 
-    - name: 🔧 Set up Docker Buildx
-      uses: docker/setup-buildx-action@v3
+      - name: 🔧 Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
 
-    - name: 🐳 Build Custom Caddy
-      run: |
-        docker buildx build \
-          --platform linux/arm64 \
-          --file Dockerfile.caddy \
-          --tag caddy-with-spire:test \
-          --cache-from type=gha,scope=caddy-ci \
-          --cache-to type=gha,mode=max,scope=caddy-ci \
-          .
+      - name: 🐳 Build Custom Caddy
+        run: |
+          docker buildx build \
+            --platform linux/arm64 \
+            --file Dockerfile.caddy \
+            --tag caddy-with-spire:test \
+            --cache-from type=gha,scope=caddy-ci \
+            --cache-to type=gha,mode=max,scope=caddy-ci \
+            .
 
   security:
     name: 🛡️ Security Scan
     runs-on: ubuntu-latest
 
     steps:
-    - name: 📥 Checkout code
-      uses: actions/checkout@v4
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
 
-    - name: 🔧 Set up Go
-      uses: actions/setup-go@v4
-      with:
-        go-version: ${{ env.GO_VERSION }}
-        cache: true
+      - name: 🔧 Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: ${{ env.GO_VERSION }}
+          cache: true
 
-    - name: 🔍 Run Go Security Check
-      run: |
-        # Basic security checks with go vet
-        go vet ./...
-        echo "✅ Basic security checks completed"
+      - name: 🔍 Run Go Security Check
+        run: |
+          # Basic security checks with go vet
+          go vet ./...
+          echo "✅ Basic security checks completed"
 
-    - name: 🔍 Run Nancy vulnerability scanner
-      run: |
-        go install github.com/sonatype-nexus-community/nancy@latest
-        go list -json -deps ./... | nancy sleuth || echo "⚠️ Nancy scan completed with warnings"
+      - name: 🔍 Run Nancy vulnerability scanner
+        run: |
+          go install github.com/sonatype-nexus-community/nancy@latest
+          go list -json -deps ./... | nancy sleuth || echo "⚠️ Nancy scan completed with warnings"
 
   validate-examples:
     name: 📚 Validate Examples
     runs-on: ubuntu-latest
 
     steps:
-    - name: 📥 Checkout code
-      uses: actions/checkout@v4
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
 
-    - name: 🔧 Set up Go
-      uses: actions/setup-go@v4
-      with:
-        go-version: ${{ env.GO_VERSION }}
-        cache: true
+      - name: 🔧 Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: ${{ env.GO_VERSION }}
+          cache: true
 
-    - name: ✅ Validate example Go files
-      run: |
-        echo "🌸 Validating example Go files..."
-        for file in examples/*.go; do
-          if [ -f "$file" ]; then
+      - name: ✅ Validate example Go files
+        run: |
+          echo "🌸 Validating example Go files..."
+          for file in examples/*.go; do
+            if [ -f "$file" ]; then
+              echo "Checking $file..."
+              go build -o /tmp/example "$file"
+              echo "✅ $file builds successfully"
+            fi
+          done
+
+      - name: ✅ Validate Docker Compose files
+        run: |
+          echo "🌸 Validating Docker Compose files..."
+          # Install docker-compose
+          sudo curl -L "https://github.com/docker/compose/releases/download/v2.24.1/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+          sudo chmod +x /usr/local/bin/docker-compose
+          for file in *.yml docker-compose*.yml examples/*.yml; do
+            if [ -f "$file" ]; then
+              echo "Checking $file..."
+              docker-compose -f "$file" config >/dev/null
+              echo "✅ $file is valid"
+            fi
+          done
+
+      - name: ✅ Validate Caddyfiles
+        run: |
+          echo "🌸 Validating Caddyfile configurations..."
+          # Basic syntax check for Caddyfiles
+          find . -name "*addyfile*" -type f | while read file; do
             echo "Checking $file..."
-            go build -o /tmp/example "$file"
-            echo "✅ $file builds successfully"
-          fi
-        done
-
-    - name: ✅ Validate Docker Compose files
-      run: |
-        echo "🌸 Validating Docker Compose files..."
-        # Install docker-compose
-        sudo curl -L "https://github.com/docker/compose/releases/download/v2.24.1/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-        sudo chmod +x /usr/local/bin/docker-compose
-        for file in *.yml docker-compose*.yml examples/*.yml; do
-          if [ -f "$file" ]; then
-            echo "Checking $file..."
-            docker-compose -f "$file" config >/dev/null
-            echo "✅ $file is valid"
-          fi
-        done
-
-    - name: ✅ Validate Caddyfiles
-      run: |
-        echo "🌸 Validating Caddyfile configurations..."
-        # Basic syntax check for Caddyfiles
-        find . -name "*addyfile*" -type f | while read file; do
-          echo "Checking $file..."
-          echo "✅ $file syntax OK (basic validation)"
-        done
+            echo "✅ $file syntax OK (basic validation)"
+          done
 
   status:
     name: ✅ CI Status
@@ -212,21 +212,21 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: 📊 Check all jobs status
-      run: |
-        echo "🌸 CI Pipeline Results:"
-        echo "Test: ${{ needs.test.result }}"
-        echo "Build: ${{ needs.build.result }}"
-        echo "Lint: ${{ needs.lint.result }}"
-        echo "Docker Build: ${{ needs.docker-build.result }}"
-        echo "Security: ${{ needs.security.result }}"
-        echo "Examples: ${{ needs.validate-examples.result }}"
-        
-        if [[ "${{ needs.test.result }}" == "failure" || 
-              "${{ needs.build.result }}" == "failure" || 
-              "${{ needs.lint.result }}" == "failure" ]]; then
-          echo "💔 Critical jobs failed"
-          exit 1
-        else
-          echo "💖 All critical jobs passed!"
-        fi
+      - name: 📊 Check all jobs status
+        run: |
+          echo "🌸 CI Pipeline Results:"
+          echo "Test: ${{ needs.test.result }}"
+          echo "Build: ${{ needs.build.result }}"
+          echo "Lint: ${{ needs.lint.result }}"
+          echo "Docker Build: ${{ needs.docker-build.result }}"
+          echo "Security: ${{ needs.security.result }}"
+          echo "Examples: ${{ needs.validate-examples.result }}"
+
+          if [[ "${{ needs.test.result }}" == "failure" ||
+                "${{ needs.build.result }}" == "failure" ||
+                "${{ needs.lint.result }}" == "failure" ]]; then
+            echo "💔 Critical jobs failed"
+            exit 1
+          else
+            echo "💖 All critical jobs passed!"
+          fi

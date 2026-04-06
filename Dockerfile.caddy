@@ -1,5 +1,5 @@
 # 🌸 Multi-stage Docker build for Custom Caddy with SPIRE + L4 Modules
-FROM --platform=$BUILDPLATFORM golang:1.24-alpine AS builder
+FROM --platform=$BUILDPLATFORM golang:1.25-alpine AS builder
 
 # Install build dependencies (cached layer)
 RUN apk add --no-cache git ca-certificates tzdata make

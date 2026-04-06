@@ -22,6 +22,9 @@ import (
 	// Rate limiting module
 	_ "github.com/mholt/caddy-ratelimit"
 
+	// AWS Route53 DNS-01 ACME challenge provider
+	_ "github.com/caddy-dns/route53"
+
 	// Our SPIRE certificate issuer module
 	_ "github.com/jenova-marie/caddy-spire-svid/pkg/caddyspire"
 )
