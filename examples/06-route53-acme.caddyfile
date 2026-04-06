@@ -1,0 +1,66 @@
+# Route53 ACME + SPIRE Hybrid Configuration
+#
+# This example demonstrates using Route53 DNS-01 challenges for public TLS
+# certificates alongside SPIRE for internal zero-trust mTLS.
+#
+# Required environment variables:
+#   AWS_ACCESS_KEY_ID     - AWS access key (or use IAM roles)
+#   AWS_SECRET_ACCESS_KEY - AWS secret key (or use IAM roles)
+#   AWS_REGION            - AWS region (e.g., us-east-1)
+#
+# Optional:
+#   SPIRE_SOCKET_PATH     - SPIRE agent socket (default: /tmp/spire-agent/public/api.sock)
+
+{
+	email admin@example.com
+}
+
+# Public-facing service: Route53 ACME DNS-01 challenge
+# Automatically obtains and renews certificates from a public CA
+public.example.com {
+	tls {
+		dns route53 {
+			region {$AWS_REGION:us-east-1}
+		}
+	}
+
+	encode br gzip
+
+	reverse_proxy localhost:3000 {
+		header_up X-Real-IP {remote_host}
+		header_up X-Forwarded-Proto {scheme}
+	}
+}
+
+# Wildcard: Route53 ACME for all subdomains
+*.apps.example.com {
+	tls {
+		dns route53 {
+			region {$AWS_REGION:us-east-1}
+			hosted_zone_id {$ROUTE53_ZONE_ID}
+		}
+	}
+
+	@dashboard host dashboard.apps.example.com
+	handle @dashboard {
+		reverse_proxy localhost:4000
+	}
+
+	@status host status.apps.example.com
+	handle @status {
+		reverse_proxy localhost:4001
+	}
+}
+
+# Internal service: SPIRE for zero-trust mTLS
+# No public CA needed - certificates issued by SPIRE trust domain
+internal.example.com:8443 {
+	tls {
+		get_certificate spire {
+			socket_path {$SPIRE_SOCKET_PATH:/tmp/spire-agent/public/api.sock}
+			refresh_at_percent 65
+		}
+	}
+
+	reverse_proxy localhost:9000
+}
