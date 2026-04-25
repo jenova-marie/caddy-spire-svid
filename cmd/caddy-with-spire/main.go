@@ -25,6 +25,9 @@ import (
 	// AWS Route53 DNS-01 ACME challenge provider
 	_ "github.com/caddy-dns/route53"
 
+	// Redis storage backend for distributed cert/state storage
+	_ "github.com/pberkel/caddy-storage-redis"
+
 	// Our SPIRE certificate issuer module
 	_ "github.com/jenova-marie/caddy-spire-svid/pkg/caddyspire"
 )

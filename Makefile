@@ -26,7 +26,7 @@ DOCKER_REGISTRY = ghcr.io
 DOCKER_REPO = jenova-marie/caddy-spire-svid
 DOCKER_IMAGE_CADDY = $(DOCKER_REGISTRY)/$(DOCKER_REPO)
 DOCKER_TAG ?= latest
-VERSION_TAG ?= v1.0.4
+VERSION_TAG ?= v1.1.0
 
 # =============================================================================
 # 🏗️ MAIN PROJECT BUILD TARGETS

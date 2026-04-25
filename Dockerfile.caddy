@@ -24,7 +24,7 @@ ARG TARGETARCH
 
 # Build the custom Caddy binary with SPIRE + L4 modules and cleanup in same layer
 RUN CGO_ENABLED=0 GOOS=$TARGETOS GOARCH=$TARGETARCH go build \
-    -ldflags="-w -s -X github.com/caddyserver/caddy/v2.CustomVersion=v0.0.4-spire-l4-docker" \
+    -ldflags="-w -s -X github.com/caddyserver/caddy/v2.CustomVersion=v1.1.0-spire-redis-docker" \
     -o caddy-with-spire \
     ./cmd/caddy-with-spire && \
     go clean -cache && \
